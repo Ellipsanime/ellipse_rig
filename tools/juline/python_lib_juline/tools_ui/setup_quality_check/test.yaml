@@ -1,0 +1,21 @@
+naming :
+
+  assemblie : ALL
+
+    first_child :
+
+      group :
+
+        geo : GEO
+        rig : RIG
+        switch : SWITCHS
+        loc : LOC
+        fur : FUR
+        shp : SHP
+
+      rig :
+
+        world : WORLD
+
+
+

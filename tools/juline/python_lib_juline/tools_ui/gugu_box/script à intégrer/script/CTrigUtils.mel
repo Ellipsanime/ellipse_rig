@@ -1,0 +1,947 @@
+/*
+----------------------------------------------
+              rigUtils 2.0
+----------------------------------------------
+-  nicolasced@gmail.com  -  www.cedric3d.com -
+-  Thanh Tam / thanhtam_tp@yahoo.com         -
+----------------------------------------------
+
+Utility UI for rigger, a swiss knife, but Im french...
+
+v2.0 : add new Tam's tools
+v1.5 : add the skinAss window
+v1.3 : new node (blend3axis), new option for shape2bone
+v1.2 : new UI and features (debug, node, etc...)
+v1.1 : debug
+
+V1.0 : first usable release
+
+Some lines are written by others humans...
+*/
+
+//===============================================================================
+// USAGE:		CTrigUtils;
+// DESCRIPTION:	Main proc for this Tool
+//===============================================================================
+
+global proc optionVarHideHandle(int $v){
+	optionVar -iv "optionVarHideHandle" $v;
+}
+
+global proc CTrigUtils()
+{
+    global string $scrollDebugText;
+    global int $sourceMel;
+    string $mel, $melList[];
+
+    string $fileAddress = `whatIs "CTrigUtils"`;
+    $fileAddress = `substitute "Mel procedure found in: " $fileAddress ""`;
+    $fileAddress = (dirname($fileAddress) + "/CTrigUtilsScript/");
+
+    //$fileAddress = "C:/Users/Bui Thanh Tam/Documents/maya/2009-x64/scripts/Util Tools/CTrigUtilsScript/";
+
+    string $iconEnv = `getenv "XBMLANGPATH"`;
+    putenv "XBMLANGPATH" ($fileAddress + "icons;" + $iconEnv);
+
+    if(!$sourceMel)
+    {
+        $melList = `getFileList -folder $fileAddress -filespec "*.mel"`;
+        for($mel in $melList)
+            if($mel != "CTrigUtils.mel")
+                catch (eval ( "source \"" + $fileAddress + $mel + "\"" ));
+        $sourceMel = 1;
+
+        print "Load all files sourced";
+    }
+
+    if (`window -ex CedricTamUtils`) deleteUI CedricTamUtils;
+    window -t "Cedric + Tam Utils [v2.0]" -h 400 -width 200 -resizeToFitChildren 1 -s 1 CedricTamUtils;
+
+    string $form = `formLayout`;
+
+        string $author = `columnLayout -adjustableColumn true`;
+
+            rowLayout -nc 2 -cw 1 130 -cw 2 60 -cl2 center center -adj 1;
+                iconTextButton -w 130 -h 22 -style "iconAndTextHorizontal" -l "      Cedric / nicolasced@gmail.com" -ann "Reduce/Expand (hotkey: `)" -c "tamWindowLayout";
+                iconTextButton -w 60 -al "right" -h 22 -style "iconAndTextHorizontal" -image "expand.bmp" -ann "Reduce/Expand (hotkey: `)" -c "tamWindowLayout";
+            setParent ..;
+
+            rowLayout -nc 2 -cw 1 130 -cw 2 60 -cl2 center center -adj 1;
+                iconTextButton -h 22 -style "iconAndTextHorizontal" -l "Thanh Tam / thanhtam_tp@yahoo.com" -c "tamWindowLayout";
+
+                button -w 60 -l "Window >";
+                popupMenu -b 1;
+                    //menuItem -l "1/ Outliner" -c "OutlinerWindow";
+                    menuItem -l "1/ Create New Outliner" -c "tamNewOutlinerPanel";
+                    menuItem -l "2/ Hypershade" -c "HypershadeWindow";
+                    menuItem -l "3/ Hypergraph" -c "HypergraphDGWindow";
+                    menuItem -d 1;
+                    menuItem -l "Connection Editor" -c "ConnectionEditor";
+                    menuItem -d 1;
+                    menuItem -l "1/ Graph Editor" -c "GraphEditor";
+                    menuItem -l "2/ Set DrivenKey" -c "SetDrivenKeyOptions";
+                    menuItem -l "3/ Expression Editor" -c "ExpressionEditor";
+                    menuItem -l "4/ Channel Control Editor" -c "ChannelControlEditor";
+                    menuItem -d 1;
+                    menuItem -l "abSymMesh" -c "abSymMesh";
+                    menuItem -l "BlendShape Manager" -c "blendShape_Manager";
+                    menuItem -d 1;
+                    menuItem -l "Arrange Set Controls" -c "tamSetSortUI";
+                    menuItem -l "Selection Wizard" -c "selectionWizard";
+                    menuItem -l "ScriptNode Manager" -c "CNscriptNodeManager";
+                    menuItem -d 1;
+                    menuItem -l "1/ jsOrientJoint" -c "jsOrientJointUI";
+                    menuItem -l "2/ skinningTools" -c "skinningTools";
+                    menuItem -l "3/ Component Editor" -c "ComponentEditor";
+                    menuItem -d 1;
+                    menuItem -d 1;
+                    menuItem -l "Hotkey" -c "tamHotkeyUI";
+                    menuItem -l "About Us" -c "tamCopyright";
+            setParent ..;
+
+            //-------------------------------------------------
+            separator -h 5;
+
+        setParent ..;		//close $author
+
+        string $tabs = `tabLayout -innerMarginWidth 2 -innerMarginHeight 2 -w 50 tamUtilTabLayout`;
+            string $child1 = `scrollLayout -cr 1`;
+            setParent..;
+            string $child2 = `scrollLayout -cr 1`;
+            setParent..;
+            string $child3 = `scrollLayout -cr 1`;
+            setParent..;
+            string $child4 = `scrollLayout -cr 1`;
+            setParent..;
+            string $child5 = `scrollLayout -cr 1`;
+            setParent..;
+            string $child6 = `scrollLayout -cr 1`;
+            setParent..;
+        setParent ..;
+
+    setParent ..;		//close $forms
+
+    // ###############################################################################################################################
+
+    // Tab Utils1 ======================================================================
+    columnLayout -p $child1 -adjustableColumn true;
+
+    text -bgc 1 1 .7 -fn "boldLabelFont" -l "InterGroup Maker";
+    rowLayout -nc 3 -cw3 70 70 70 -cl3 center center center;
+        checkBox -v 1 -l "Translate" tamUtilCkTranslate;
+        checkBox -v 1 -l "Rotate" tamUtilCkRotate;
+        checkBox -v 1 -l "Scale" tamUtilCkScale;
+    setParent..;
+    rowLayout -adj 1 -nc 3 -cw3 50 75 75 -cl3 center center center;
+        text -l "Pre/Sufix >>";
+        popupMenu -b 1;
+            radioMenuItemCollection;
+            menuItem -rb 1 -l "Auto Select Parent" tamAutoSelectParent;
+            menuItem -rb 0 -l "Auto Select Children" tamAutoSelectChildren;
+
+        if (`optionVar -q tamAutoSelectInterGroup`)	//Select Children
+            menuItem -e -rb 1 tamAutoSelectChildren;
+        else 							//Select Parent
+            menuItem -e -rb 1 tamAutoSelectParent;
+
+        textField -w 75 -tx "GRP_" tamHookPrefix;
+        popupMenu -b 3;
+            menuItem -l "grp_" -c ("textField -e -tx grp_ tamHookPrefix");
+            menuItem -l "Grp_" -c ("textField -e -tx Grp_ tamHookPrefix");
+            menuItem -l "GRP_" -c ("textField -e -tx GRP_ tamHookPrefix");
+            menuItem -d 1;
+            menuItem -l "ctrl_" -c ("textField -e -tx ctrl_ tamHookPrefix");
+            menuItem -l "Ctrl_" -c ("textField -e -tx Ctrl_ tamHookPrefix");
+            menuItem -l "CTRL_" -c ("textField -e -tx CTRL_ tamHookPrefix");
+            menuItem -d 1;
+            menuItem -l "offset_" -c ("textField -e -tx offset_ tamHookPrefix");
+
+        textField -w 75 tamHookSufix;
+        popupMenu -b 3;
+            menuItem -l "_grp" -c ("textField -e -tx _grp tamHookSufix");
+            menuItem -l "_Grp" -c ("textField -e -tx _Grp tamHookSufix");
+            menuItem -l "_GRP" -c ("textField -e -tx _GRP tamHookSufix");
+            menuItem -d 1;
+            menuItem -l "_ctrl" -c ("textField -e -tx _ctrl tamHookSufix");
+            menuItem -l "_Ctrl" -c ("textField -e -tx _Ctrl tamHookSufix");
+            menuItem -l "_CTRL" -c ("textField -e -tx _CTRL tamHookSufix");
+            menuItem -d 1;
+            menuItem -l "_offset" -c ("textField -e -tx _offset tamHookSufix");
+    setParent..;
+
+    rowLayout -adj 1 -nc 2 -cw2 100 120 -cl2 center center;
+        button -w 100 -l "Create Group (set Value)" -c "tamInterGrpMaker 0";
+        button -w 120 -l "Create Joint" -c "tamInterGrpMakerJoint";
+    setParent..;
+    rowLayout -adj 1 -nc 2 -cw2 100 120 -cl2 center center;
+        button -w 100 -l "Create Group (align Pivot)" -c "tamInterGrpMaker 1";
+	 checkBox -l "Freeze new group" tamUtilCkFreeze;
+    setParent..;
+
+    //-------------------------------------------------
+    separator -h 15;
+
+    text -bgc .26 1 .64 -fn "boldLabelFont" -l "Shape and Control";
+
+/*
+    button -l "Shape to Transform/Joint (Tam)" -c "tamShape2Control";
+    separator -h 10 -st "none";
+*/
+
+    //-------------------------------------------------
+    separator -h 4 -style "none";
+
+    button -l "Shape to Transform/Joint" -c shapeToBones;
+    rowColumnLayout -nc 2 -cw 1 130 -cw 2 130;
+        checkBox -value 1 -l "delete source manip" deleteManip;
+        checkBox -value 1 -l "copy in place" copyInPlace;
+        checkBox -value 1 -l "clear before copy" clearBefore;
+        checkBox -l "reverse" reverseManip;
+    setParent..;
+
+    separator -h 4 -st "none";
+
+    rowLayout -nc 2 -cw 1 130 -cw 2 130 -cl2 center center -adj 1;
+        button -w 130 -l "Mirror Shape" -c mirrorShape;
+        button -w 130 -l "Delete Shape" -c delShape;
+    setParent..;
+
+    //-------------------------------------------------
+    separator -h 4 -style "none";
+
+    button -l "Move Shape to New Transform" -c tamShape2NewTransform;
+
+    //-------------------------------------------------
+    separator -h 15;
+
+    text -bgc .4 .4 .95 -fn "boldLabelFont" -l "Joint Utils";
+    rowLayout -adj 1 -nc 3 -cw3 100 50 50 -cl3 center center center;
+        button -l "Split" -c createSplitLocators;
+        text -l "     split#";
+        intField -v 1 splitNb;
+    setParent..;
+
+    button -l "fix Split" -c createSplitJointChain;
+    //separator -style "none" -h 20;
+    //button -l "Create mid-point" -c acpVectorPosition;
+    //button -l "Vector Pose" -c acpVectorPosition;
+
+    //-------------------------------------------------
+    separator -h 15;
+
+    text -bgc 1 0.7 0.7 -fn "boldLabelFont" -l "Check, Objs, Channels Utils";
+    rowLayout -nc 2 -cw 1 130 -cw 2 130 -cl2 center center -adj 1;
+        button -w 130 -l "Check Duplicate >>";		// -c "reportDuplicateNodes_Main 1 0";
+        popupMenu -b 1 ;
+            menuItem -l "Check Nodes" -c "checkNodesToRename";
+            menuItem -l "Check Shapes" -c "checkShapesToRename";
+
+        button -w 130 -l "Remove Ghosts" -c "removeBadShapes";
+    setParent ..;
+
+    rowLayout -nc 2 -cw 1 130 -cw 2 130 -cl2 center center -adj 1;
+        button -bgc .89 .89 .78 -w 130 -l "Show / Hide Attr >>";
+        popupMenu -b 1 ;
+            menuItem -l "Show 2nd Transform" -c "showHideSecAttr 1";
+            menuItem -l "Show jointOrient" -c "showHideSecAttr 2";
+            menuItem -l "Show Pivot" -c "showHideSecAttr 3";
+            menuItem -d 1;
+            menuItem -l "Hide Secondary Attr" -c "showHideSecAttr 0";
+
+        button -w 130 -l "Unlock Channels" -c "unlockTr";
+        //button -w 130 -l "verify inverseSc" -c "removeBadShapes";
+    setParent ..;
+
+    rowLayout -nc 2 -cw 1 130 -cw 2 130 -cl2 center center -adj 1;
+        rowLayout -nc 3 -cw 1 80 -cw 2 25 -cw 3 25 -cl3 center center center -adj 1;
+            text -bgc .65 .64 .6 -l "Ref. Object" -ann "This button will change Display Type from Normal to Reference";
+            button -bgc .65 .64 .6 -w 25 -l "On" -c "tamSetObjectDisplay 2";
+            button -bgc .65 .64 .6 -w 25 -l "Off" -c "tamSetObjectDisplay 3";
+        setParent ..;
+
+        button -w 130 -l "Select Influences" -c "selInfluences";
+    setParent ..;
+
+    rowLayout -nc 2 -cw 1 130 -cw 2 130 -cl2 center center -adj 1;
+        button -w 130 -l "inverseScale On Joints" -c "inverseScaleOnJoints `ls -sl`";
+        button -w 130 -l "Between Objs" -c "string $sels[] = `ls -sl`;string $bt[] = `getBetweenJoints $sels[0] $sels[1]`; select -r $bt";
+    setParent ..;
+
+    rowLayout -nc 2 -cw 1 130 -cw 2 130 -cl2 center center -adj 1;
+        button -w 130 -l "copyOnly" -c "copyOnlyBatch";
+        button -w 130 -l "select 1ST child" -c "CnrigUtilsSel1stChild;";
+    setParent ..;
+
+    setParent ..;
+
+    // Tab Utils2 ======================================================================
+    columnLayout -p $child2 -adjustableColumn true;
+
+    shelfTabLayout -image "smallTrash.xpm" -imageVisible true mainShelfTab;
+        shelfLayout -cwh 34 34 CTrigUtils;
+            string $fileName = ($fileAddress + "shelf_CTrigUtils");
+            string $buffer[];
+            int $numTokens = `tokenize $fileName "/" $buffer`;
+            string $shortFileName = $buffer[$numTokens - 1];
+            string $proc = `substitute "\\.mel" $shortFileName ""`;
+            eval ($proc);
+        setParent ..;
+    setParent ..;
+
+    popupMenu -p mainShelfTab -b 3;
+        menuItem -l "Edit Shelf" -c ("tamEditShelf_UI \"CTrigUtils\" \"" + $fileAddress + "\"");
+        menuItem -l "Save Shelf" -c ("saveShelf \"CTrigUtils\" \"" + $fileName + "\"; source \"" + $fileName + ".mel\"");
+
+/*
+    rowColumnLayout -nc 5 -cw 1 35 -cw 2 35 -cw 3 35 -cw 4 35 -cw 5 35;
+        iconTextButton -h 33 -style "iconAndTextHorizontal" -image "alignTool.xpm" -iol "Align" -ann "Align Tool" -c ("tamAlignObj \"\" \"\" 1 1 1");
+        popupMenu -b 3;
+            menuItem -l "Align Translate" -c ("tamAlignObj \"\" \"\" 1 0 0");
+            menuItem -l "Align Rotate" -c ("tamAlignObj \"\" \"\" 0 1 0");
+            menuItem -l "Align Scale" -c ("tamAlignObj \"\" \"\" 0 0 1");
+
+        iconTextButton -h 33 -style "iconAndTextHorizontal" -image "align.bmp" -iol "Align" -ann "Align Translate (can work with Key)" -c "massAlign";
+
+        iconTextButton -h 33 -style "iconAndTextHorizontal" -image "menuIconModify.xpm" -iol "FT" -ann "Freeze Transformations" -c ("makeIdentity -apply true -t 1 -r 1 -s 1 -n 0;");
+        popupMenu -b 3;
+            menuItem -l "Freeze Translate" -c ("makeIdentity -apply true -t 1 -r 0 -s 0 -n 0;");
+            menuItem -l "Freeze Rotate" -c ("makeIdentity -apply true -t 0 -r 1 -s 0 -n 0;");
+            menuItem -l "Freeze Scale" -c ("makeIdentity -apply true -t 0 -r 0 -s 1 -n 0;");
+
+        iconTextButton -h 33 -style "iconAndTextHorizontal" -image "menuIconModify.xpm" -iol "RT" -ann "Reset Transformations" -c ("sakSetAttr `ls -sl` {\"tx\",\"ty\",\"tz\",\"rx\",\"ry\",\"rz\",\"sx\",\"sy\",\"sz\"} {0,0,0,0,0,0,1,1,1};");
+        popupMenu -b 3;
+            menuItem -l "Reset Translate" -c ("sakFlyingSetAttr `ls -sl` {\"tx\",\"ty\",\"tz\"} {0,0,0};");
+            menuItem -l "Reset Rotate" -c ("sakFlyingSetAttr `ls -sl` {\"rx\",\"ry\",\"rz\"} {0,0,0};");
+            menuItem -l "Reset Scale" -c ("sakFlyingSetAttr `ls -sl` {\"sx\",\"sy\",\"sz\"} {1,1,1};");
+
+        iconTextButton -h 33 -style "iconAndTextHorizontal" -image "menuIconEdit.xpm" -iol "His" -ann "Delete History" -c "DeleteHistory";
+        popupMenu -b 3;
+            menuItem -l "Delete Non-Deformer History [prePost]" -c "bakePartialHistory -prePostDeformers;";
+            menuItem -l "Delete Non-Deformer History [pre]" -c "bakePartialHistory -preDeformers;";
+    setParent ..;
+*/
+
+    //-------------------------------------------------
+    separator -h 15 ;
+
+    text -bgc .65 .64 .6 -fn "fixedWidthFont" -l "Select MASTERS then SLAVES";
+    button -l "Parent (Opposite with using key P)" -c "massParent";
+    //button -l "CtrParent" -c "massCtrParent 1";
+    //button -l "CtrParent without offset" -c "massCtrParent 0";
+    button -l "Copy Attr" -c "copyAttr";
+    button -l "Connect outMesh -> inMesh" -c "copyPolyShape";
+
+    //-------------------------------------------------
+    separator -h 15;
+
+    text -bgc .26 1 .64 -fn "boldLabelFont" -l "Pivot";
+    rowColumnLayout -nc 5 -cw 1 35 -cw 2 35 -cw 3 35 -cw 4 35;
+        iconTextButton -h 33 -style "iconAndTextHorizontal" -image "axisShow.bmp" -ann "Show Local Axis" -c "tamSetObjectDisplay 1";
+        iconTextButton -h 33 -style "iconAndTextHorizontal" -image "axisHide.bmp" -ann "Hide Local Axis" -c "tamSetObjectDisplay 0";
+        iconTextButton -h 33 -style "iconAndTextHorizontal" -image "axisCenter.bmp" -ann "Center Pivot" -c "xform -cp;";
+        iconTextButton -h 33 -style "iconAndTextHorizontal" -image "axisWorld.bmp" -ann "Pivot to Origin" -c "xform -ws -piv 0 0 0;";
+    setParent ..;
+
+    //-------------------------------------------------
+    separator -h 5 -style "none";
+
+    button -w 130 -l "Create 'Center Locator' from selected" -c "tamCenterLoc";
+
+    //-------------------------------------------------
+    separator -h 15;
+    text -bgc 1 1 .7 -fn "boldLabelFont" -l "Add Attribute / Separator";
+
+    rowLayout -nc 5 -cw5 55 1 32 32 30 -cl4 center center center center -ad5 2;
+        button -w 55 -l "Manager" -c "attributeMan";
+        text -l "";
+        button -w 30 -l "Add" -c "AddAttribute";
+        button -w 30 -l "Edit" -c "RenameAttribute";
+        button -w 30 -l "Del" -c "DeleteAttribute";
+    setParent ..;
+
+    //-------------------------------------------------
+    separator -h 10;
+
+    rowLayout -nc 5 -cw 1 40 -cw 2 60 -cw 3 40 -cw 4 70 -cw 5 30 -adj 2;
+        text -l "Label :";
+        textField -w 60 -tx "" tamUtilTxtLabel;
+        text -l " Value :";
+        textField -w 70 -tx "0" tamUtilTxtValue;
+        button -w 30 -l "Add" -c "tamAddSeparator";
+    setParent ..;
+
+    //-------------------------------------------------
+    separator -h 15;
+
+    text -bgc 1 0.75 0.75 -fn "boldLabelFont" -l "Rename Objects";
+    textField tamUtilTxtCmd;
+    popupMenu -b 3 tamUtilRenameMenu;
+        if ( `optionVar -q tamUtilRename1` != 0)
+            menuItem -l `optionVar -q tamUtilRename1` -c ("textField -e -tx `optionVar -q tamUtilRename1` tamUtilTxtCmd");
+        if ( `optionVar -q tamUtilRename2` != 0)
+            menuItem -l `optionVar -q tamUtilRename2` -c ("textField -e -tx `optionVar -q tamUtilRename2` tamUtilTxtCmd");
+        if ( `optionVar -q tamUtilRename3` != 0)
+            menuItem -l `optionVar -q tamUtilRename3` -c ("textField -e -tx `optionVar -q tamUtilRename3` tamUtilTxtCmd");
+        if ( `optionVar -q tamUtilRename4` != 0)
+            menuItem -l `optionVar -q tamUtilRename4` -c ("textField -e -tx `optionVar -q tamUtilRename4` tamUtilTxtCmd");
+        if ( `optionVar -q tamUtilRename5` != 0)
+            menuItem -l `optionVar -q tamUtilRename5` -c ("textField -e -tx `optionVar -q tamUtilRename5` tamUtilTxtCmd");
+
+    rowLayout -nc 6 -cw 1 32 -cw 2 32 -cw 3 32 -cw 4 40 -cw 5 53;
+        button -w 27 -l "(@)" -ann "Use the old name" -c ("int $position=`textField -q -ip tamUtilTxtCmd`;textField -e -ip $position -it \"(@)\" tamUtilTxtCmd");
+        button -w 27 -l "(P)" -ann "Use the parent name" -c ("int $position=`textField -q -ip tamUtilTxtCmd`;textField -e -ip $position -it \"(P)\" tamUtilTxtCmd");
+        button -w 27 -l "(C)" -ann "Use the child name" -c ("int $position=`textField -q -ip tamUtilTxtCmd`;textField -e -ip $position -it \"(C)\" tamUtilTxtCmd");
+        button -w 35 -l "(A=B)" -ann "Replace A by B" -c ("int $position=`textField -q -ip tamUtilTxtCmd`;textField -e -ip $position -it \"(A=B)\" tamUtilTxtCmd");
+        button -w 48 -l "(## 1 1)" -ann "##:padding, number1:start, number2:step" -c ("int $position=`textField -q -ip tamUtilTxtCmd`;textField -e -ip $position -it \"(## 1 1)\" tamUtilTxtCmd");
+        button -w 38 -bgc 1 1 1 -l "Clear" -ann "Clear all" -c ("textField -e -tx \"\" tamUtilTxtCmd");
+    setParent..;
+
+    rowLayout -nc 3 -cw 1 70 -cw 2 70 -cw 3 50 -cal 3 center -adj 3;
+        radioCollection tamUtilOptRename;
+            radioButton -sl -l "Selection" tamUtilOptSel;
+            radioButton -l "Hierarchy" tamUtilOptHierarchy;
+
+        button -l "Rename" -c "tamRenameObject";
+    setParent..;
+
+    //-------------------------------------------------
+    separator -h 15;
+
+    frameLayout -l "Tools" -bs etchedIn -cll 1 -cl 1;
+        columnLayout -adj 1;
+        button -w 130 -l "TAM Tools >>";
+            popupMenu -b 1;
+                menuItem -l "File Browser" -c "tamFileBrowserUI";
+                menuItem -l "Edit Shelf" -c "tamEditShelf_UI \"\" \"\"";
+                menuItem -d 1;
+                menuItem -l "Change Attr Type" -c "tamChangeAttrTypeUI";
+                menuItem -l "Move UV" -c "tamUVtool";
+                menuItem -l "Check Joint Influences" -c "tamCheckInfluencesUI";
+                menuItem -l "Check Link" -c "tamCheckFile";
+                menuItem -l "BlendShape" -c "tamBlendShape";
+                menuItem -l "Auto Wrap" -c "tamAutoWrap";
+                menuItem -l "Random Object" -c "tamRandomObject";
+                menuItem -l "Replace Object" -c "tamReplaceObject";
+                menuItem -l "Combine Constrain" -c "tamCombineConstrain";
+
+        button -w 130 -l "Shake It" -c "tamShake";
+        button -w 130 -l "Squash It" -c "squashIt";
+        setParent ..;
+    setParent ..;
+
+    setParent ..;
+
+    // Tab Connection ==============================================================
+    columnLayout -p $child3 -adjustableColumn true;
+        rowLayout -nc 2 -cw2 70 170 -cl2 left center -ad2 1;
+        text -w 70 -l " Conn. Type :";
+        optionMenu tamUtilArrangeType;
+            menuItem -label "1. 1  2  3  4  5  -> 6 (constrain)";
+            menuItem -label "2. 1 -> 2  3  4  5  6 ...";
+            menuItem -label "3. [1 -> 2]  [3 -> 4]  [5 -> 6]";
+            menuItem -label "4. [1 -> 4]  [2 -> 5]  [3 -> 6]";
+
+        optionMenu -e -sl 3 tamUtilArrangeType;
+
+        setParent ..;
+/*
+        radioCollection tamUtilArrangeType;
+            radioButton -l "1  2  3  4  5  -> 6 (constrain only)" -onc "checkBox -e -v 0 -en 0 tamUtilCkReverse" tamUtilArrangeType4;
+            radioButton -l "1 -> 2  3  4  5  6 ..." -onc "checkBox -e -v 0 -en 0 tamUtilCkReverse" tamUtilArrangeType1;
+            radioButton -sl -l "[1 -> 2]  [3 -> 4]  [5 -> 6]" -onc "checkBox -e -en 1 tamUtilCkReverse" tamUtilArrangeType2;
+            radioButton -l "[1 -> 4]  [2 -> 5]  [3 -> 6]" -onc "checkBox -e -en 1 tamUtilCkReverse" tamUtilArrangeType3;
+        setParent ..;
+*/
+        rowLayout -nc 3 -cw3 70 110 60 -cl3 left left center -ad3 1;
+            text -l " List :";
+            checkBox -l "Reverse" tamUtilCkReverse;
+            button -w 60 -l "Update" -ann "Update List" -c "textScrollList -e -ra tamUtilListConnect; tamListConnect;tamConnectPopupMenu;";
+        setParent ..;
+
+	textScrollList -numberOfRows 8 -ams 0 -dkc "int $itemIndex1[] = `textScrollList -q -sii tamUtilListConnect`; if($itemIndex1[0]>0) {textScrollList -e -rii $itemIndex1[0] tamUtilListConnect;}" tamUtilListConnect;
+
+    //-------------------------------------------------
+    separator -h 10;
+
+    text -bgc 1 1 0.7 -fn "boldLabelFont" -l "Connect Attribute";
+
+    rowColumnLayout -nc 4 -cw 1 80 -cw 2 65 -cw 3 65 -cw 4 40;
+        checkBox -l "Translate" tamUtilCkT;
+        checkBox -l "TX" tamUtilCkTX;
+        checkBox -l "TY" tamUtilCkTY;
+        checkBox -l "TZ" tamUtilCkTZ;
+
+        checkBox -l "Rotate" tamUtilCkR;
+        checkBox -l "RX" tamUtilCkRX;
+        checkBox -l "RY" tamUtilCkRY;
+        checkBox -l "RZ" tamUtilCkRZ;
+
+        checkBox -l "Scale" tamUtilCkS;
+        checkBox -l "SX" tamUtilCkSX;
+        checkBox -l "SY" tamUtilCkSY;
+        checkBox -l "SZ" tamUtilCkSZ;
+    setParent..;
+
+    button -w 260 -l "Connect Attribute" -command ("tamDoConnectObject 1");
+
+    //-------------------------------------------------
+    separator -h 10;
+
+    rowLayout -bgc .7 1 0.7 -nc 2 -cw 1 40 -cw 2 70 -cl2 right center -adj 1;
+        text -bgc .7 1 0.7 -fn "boldLabelFont" -l "Connect Output -> Input ";
+        button -w 20 -l ">>" -c "ConnectionEditor";
+    setParent..;
+
+    rowLayout -nc 4 -cw 1 40 -cw 2 90 -cw 3 35 -cw 4 95 -adj 2;
+        text -l "Output :";
+        textField tamUtilTxtOutput1TXT;
+        popupMenu -b 3 tamUtilTxtOutput1;
+        text -l " Input :";
+        textField -w 95 tamUtilTxtInput1TXT;
+        popupMenu -b 3 tamUtilTxtInput1;
+    setParent..;
+
+    rowLayout -nc 4 -cw 1 40 -cw 2 90 -cw 3 35 -cw 4 95 -adj 2;
+        text -l "Output :";
+        textField tamUtilTxtOutput2TXT;
+        popupMenu -b 3 tamUtilTxtOutput2;
+        text -l " Input :";
+        textField -w 95 tamUtilTxtInput2TXT;
+        popupMenu -b 3 tamUtilTxtInput2;
+    setParent..;
+
+    rowLayout -nc 4 -cw 1 40 -cw 2 90 -cw 3 35 -cw 4 95 -adj 2;
+        text -l "Output :";
+        textField tamUtilTxtOutput3TXT;
+        popupMenu -b 3 tamUtilTxtOutput3;
+        text -l " Input :";
+        textField -w 95 tamUtilTxtInput3TXT;
+        popupMenu -b 3 tamUtilTxtInput3;
+    setParent..;
+
+    button -w 100 -l "Connect Output -> Input" -command ("tamDoConnectObject 2");
+
+    tamConnectPopupMenu;
+
+    //-------------------------------------------------
+    separator -h 10;
+
+    text -bgc 1 .7 .7 -fn "boldLabelFont" -l "Constrain";
+
+    rowLayout -nc 7 -cw 1 40 -cw 2 50 -cw 3 25 -cw 4 34 -cw 5 34 -cw 6 40 -cw 7 35 -adj 2;
+        text -l "Point :";
+        checkBox -l "Offset" tamUtilCkPointOffset;
+        button -l "All" -ann "Toggle check X, Y, Z" -c "if(`checkBox -q -v tamUtilCkPointX`) checkBox -e -v 0 tamUtilCkPointX; else checkBox -e -v 1 tamUtilCkPointX; if(`checkBox -q -v tamUtilCkPointY`) checkBox -e -v 0 tamUtilCkPointY; else checkBox -e -v 1 tamUtilCkPointY; if(`checkBox -q -v tamUtilCkPointZ`) checkBox -e -v 0 tamUtilCkPointZ; else checkBox -e -v 1 tamUtilCkPointZ;";
+        checkBox -l "X" tamUtilCkPointX;
+        checkBox -l "Y" tamUtilCkPointY;
+        checkBox -l "Z" tamUtilCkPointZ;
+        checkBox -l "Del" -ann "Delete after constrain" tamUtilCkPointDel;
+    setParent..;
+
+    rowLayout -nc 7 -cw 1 40 -cw 2 50 -cw 3 25 -cw 4 34 -cw 5 34 -cw 6 40 -cw 7 35 -adj 2;
+        text -l "Orient :";
+        checkBox -l "Offset" tamUtilCkOrientOffset;
+        button -l "All" -ann "Toggle check X, Y, Z" -c "if(`checkBox -q -v tamUtilCkOrientX`) checkBox -e -v 0 tamUtilCkOrientX; else checkBox -e -v 1 tamUtilCkOrientX; if(`checkBox -q -v tamUtilCkOrientY`) checkBox -e -v 0 tamUtilCkOrientY; else checkBox -e -v 1 tamUtilCkOrientY; if(`checkBox -q -v tamUtilCkOrientZ`) checkBox -e -v 0 tamUtilCkOrientZ; else checkBox -e -v 1 tamUtilCkOrientZ;";
+        checkBox -l "X" tamUtilCkOrientX;
+        checkBox -l "Y" tamUtilCkOrientY;
+        checkBox -l "Z" tamUtilCkOrientZ;
+        checkBox -l "Del" -ann "Delete after constrain" tamUtilCkOrientDel;
+    setParent..;
+
+    rowLayout -nc 7 -cw 1 40 -cw 2 50 -cw 3 25 -cw 4 34 -cw 5 34 -cw 6 40 -cw 7 35 -adj 2;
+        text -l "Scale :";
+        checkBox -l "Offset" tamUtilCkScaleOffset;
+        button -l "All" -ann "Toggle check X, Y, Z" -c "if(`checkBox -q -v tamUtilCkScaleX`) checkBox -e -v 0 tamUtilCkScaleX; else checkBox -e -v 1 tamUtilCkScaleX; if(`checkBox -q -v tamUtilCkScaleY`) checkBox -e -v 0 tamUtilCkScaleY; else checkBox -e -v 1 tamUtilCkScaleY; if(`checkBox -q -v tamUtilCkScaleZ`) checkBox -e -v 0 tamUtilCkScaleZ; else checkBox -e -v 1 tamUtilCkScaleZ;";
+        checkBox -l "X" tamUtilCkScaleX;
+        checkBox -l "Y" tamUtilCkScaleY;
+        checkBox -l "Z" tamUtilCkScaleZ;
+        checkBox -l "Del" -ann "Delete after constrain" tamUtilCkScaleDel;
+    setParent..;
+
+    rowLayout -nc 7 -cw 1 40 -cw 2 50 -cw 3 25 -cw 4 34 -cw 5 34 -cw 6 40 -cw 7 35 -adj 2;
+        text -l "Parent :";
+        checkBox -l "Offset" tamUtilCkParentOffset;
+        button -l "All" -ann "Toggle check X, Y, Z" -c "if(`checkBox -q -v tamUtilCkParentX`) checkBox -e -v 0 tamUtilCkParentX; else checkBox -e -v 1 tamUtilCkParentX; if(`checkBox -q -v tamUtilCkParentY`) checkBox -e -v 0 tamUtilCkParentY; else checkBox -e -v 1 tamUtilCkParentY; if(`checkBox -q -v tamUtilCkParentZ`) checkBox -e -v 0 tamUtilCkParentZ; else checkBox -e -v 1 tamUtilCkParentZ;";
+        checkBox -l "X" tamUtilCkParentX;
+        checkBox -l "Y" tamUtilCkParentY;
+        checkBox -l "Z" tamUtilCkParentZ;
+        checkBox -l "Del" -ann "Delete after constrain" tamUtilCkParentDel;
+    setParent..;
+
+    button -w 260 -l "Constrain" -command ("tamDoConnectObject 3");
+
+    setParent ..;
+
+    // Tab Shapes ==================================================================
+    columnLayout -p $child4 -adjustableColumn true;
+	checkBox -l "Hide handle" -v true -onc "optionVarHideHandle 1" -ofc "optionVarHideHandle 0";
+	optionVar -iv "optionVarHideHandle" 1;
+    button -l "Shape to Transform/Joint" -c shapeToBones;
+    frameLayout -l "Set Control Color" -bs etchedIn -cll 1 -cl 0;
+        columnLayout -adj 1;
+        rowColumnLayout -nc 4 -cw 1 90 -cw 2 90 -cw 3 40 -cw 4 40;
+            radioCollection tamUtilControlColor;
+                radioButton -l "Transform" tamUtilOptTran;
+                radioButton -l "Shape" tamUtilOptShape;
+            button -l "ON" -c ("tamDoControlColor -1");
+            button -l "OFF" -c ("tamDoControlColor -2");
+        setParent..;
+
+        if ( `optionVar -q tamUtilControlColor` == "tamUtilOptTran")
+            radioButton -e -sl tamUtilOptTran;
+        else
+            radioButton -e -sl tamUtilOptShape;
+
+        rowColumnLayout -nc 6 -cw 1 44 -cw 2 44 -cw 3 43 -cw 4 43 -cw 5 43 -cw 6 43;
+            button -l "" -bgc 1 1 0 -c ("tamDoControlColor 17");
+            button -l "" -bgc 1 0 0 -c ("tamDoControlColor 13");
+            button -l "" -bgc 0 0 1 -c ("tamDoControlColor 6");
+            button -l "" -bgc 0 1 0 -c ("tamDoControlColor 14");
+            button -l "" -bgc 0.6 0 0.156 -c ("tamDoControlColor 4");
+            button -l "" -bgc 0.89 0.674 0.474 -c ("tamDoControlColor 21");
+        setParent..;
+
+        rowColumnLayout -nc 13 -cw 1 20 -cw 2 20 -cw 3 20 -cw 4 20 -cw 5 20 
+        -cw 6 20 -cw 7 20 -cw 8 20 -cw 9 20 -cw 10 20 -cw 11 20 -cw 12 20 -cw 13 20;
+            button -l "" -bgc 0 0 0 -c ("tamDoControlColor 1");
+            button -l "" -bgc 0.627 0.627 0.627 -c ("tamDoControlColor 0");
+            button -l "" -bgc 0.247 0.247 0.247 -c ("tamDoControlColor 2");
+            button -l "" -bgc 0.498 0.498 0.498 -c ("tamDoControlColor 3");
+            button -l "" -bgc 0 0.015 0.372 -c ("tamDoControlColor 5");
+            button -l "" -bgc 0 0.274 0.094 -c ("tamDoControlColor 7");
+            button -l "" -bgc 0.145 0 0.262 -c ("tamDoControlColor 8");
+            button -l "" -bgc 0.78 0 0.78 -c ("tamDoControlColor 9");
+            button -l "" -bgc 0.537 0.278 0.2 -c ("tamDoControlColor 10");
+            button -l "" -bgc 0.243 0.133 0.121 -c ("tamDoControlColor 11");
+            button -l "" -bgc 0.6 0.145 0. -c ("tamDoControlColor 12");
+            button -l "" -bgc 0 0.255 0.6 -c ("tamDoControlColor 15");
+            button -l "" -bgc 1 1 1 -c ("tamDoControlColor 16");
+            button -l "" -bgc 0.388 0.862 1 -c ("tamDoControlColor 18");
+
+            button -l "" -bgc 0.263 1 0.635 -c ("tamDoControlColor 19");
+            button -l "" -bgc 1 0.686 0.686 -c ("tamDoControlColor 20");
+            button -l "" -bgc 1 1 0.384 -c ("tamDoControlColor 22");
+            button -l "" -bgc 0 0.6 0.325 -c ("tamDoControlColor 23");
+            button -l "" -bgc 0.627 0.412 0.188 -c ("tamDoControlColor 24");
+            button -l "" -bgc 0.619 0.627 0.188 -c ("tamDoControlColor 25");
+            button -l "" -bgc 0.408 0.627 0.188 -c ("tamDoControlColor 26");
+            button -l "" -bgc 0.188 0.627 0.365 -c ("tamDoControlColor 27");
+            button -l "" -bgc 0.188 0.627 0.627 -c ("tamDoControlColor 28");
+            button -l "" -bgc 0.188 0.4 0.627 -c ("tamDoControlColor 29");
+            button -l "" -bgc 0.435 0.188 0.627 -c ("tamDoControlColor 30");
+            button -l "" -bgc 0.627 0.188 0.412 -c ("tamDoControlColor 31");
+        setParent ..;
+
+        setParent..;
+    setParent..;
+
+    //-------------------------------------------------
+    separator -h 15;
+
+    rowColumnLayout -nc 5 -cw 1 30 -cw 2 35 -cw 3 35 -cw 4 52 -cw 5 110;
+        text -l "Size :";
+        optionMenu tamUtilControlSize;
+            menuItem -label "1";
+            menuItem -label "2";
+            menuItem -label "3";
+            menuItem -label "4";
+            menuItem -label "5";
+        //textField -tx "1" tamUtilControlSize;
+
+        text -l "  Axis :";
+        optionMenu tamUtilControlAxis;
+            menuItem -label "X";
+            menuItem -label "Y";
+            menuItem -label "Z";
+            menuItem -label "-X";
+            menuItem -label "-Y";
+            menuItem -label "-Z";
+
+        optionMenu -e -sl 2 tamUtilControlAxis;
+
+        button -w 110 -l "Print Selected Curve" -c "CNcurveDecompiler"; 
+    setParent ..;
+
+    //-------------------------------------------------
+    separator -style "none" -h 10;
+
+    rowColumnLayout -nc 6
+        -ro 1 bottom 2 -ro 2 bottom 2 -ro 3 bottom 2 -ro 4 bottom 2 -ro 5 bottom 2 -ro 6 bottom 2
+        -cs 1 2 -cs 2 2 -cs 3 2 -cs 4 2 -cs 5 2 -cs 6 2
+        -cw 1 42 -cw 2 42 -cw 3 42 -cw 4 42 -cw 5 42 -cw 6 42;
+
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "cube.bmp" -ann "Cube" -c "tamWireShape cube 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "square.bmp" -ann "Square" -c "tamWireShape square 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "circle.bmp" -ann "Circle" -c "tamWireShape circleY 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Triangle.bmp" -ann "Triangle" -c "tamWireShape rig101WCTriangle 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "cross1.bmp" -ann "Cross1" -c "tamWireShape cross 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "cross2.bmp" -ann "Cross2" -c "tamWireShape rig101WCCross 0";
+
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "arrow.bmp" -ann "Arrow" -c "tamWireShape arrow 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "double_arrow.bmp" -ann "Double Arrow" -c "tamWireShape doubleArrow 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Orient.bmp" -ann "Orient" -c "tamWireShape orient 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Four Fat.bmp" -ann "Four Fat" -c "tamWireShape rig101WCDirFourFat 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Four Thin.bmp" -ann "Four Thin" -c "tamWireShape rig101WCDirFourThin 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Eight.bmp" -ann "Eight" -c "tamWireShape rig101WCDirEight 0";
+
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Single Fat.bmp" -iol "Fat" -ann "Single Fat" -c "tamWireShape rig101WCDirSingleFat 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Single Normal.bmp" -iol "Normal" -ann "Single Normal" -c "tamWireShape rig101WCDirSingleNormal 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Single Thin.bmp" -iol "Thin" -ann "Single Thin" -c "tamWireShape rig101WCDirSingleThin 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Double Fat.bmp" -iol "Fat" -ann "Double Fat" -c "tamWireShape rig101WCDirDoubleFat 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Double Normal.bmp" -iol "Normal" -ann "Double Normal" -c "tamWireShape rig101WCDirDoubleNormal 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Double Thin.bmp" -iol "Thin" -ann "Double Thin" -c "tamWireShape rig101WCDirDoubleThin 0";
+
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "90 Fat.bmp" -iol "Fat" -ann "90 Fat" -c "tamWireShape rig101WCRot90Fat 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "90 Normal.bmp" -iol "Normal" -ann "90 Normal" -c "tamWireShape rig101WCRot90Normal 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "90 Thin.bmp" -iol "Thin" -ann "90 Thin" -c "tamWireShape rig101WCRot90Thin 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "180 Fat.bmp" -iol "Fat" -ann "180 Fat" -c "tamWireShape rig101WCRot180Fat 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "180 Normal.bmp" -iol "Normal" -ann "180 Normal" -c "tamWireShape rig101WCRot180Normal 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "180 Thin.bmp" -iol "Thin" -ann "180 Thin" -c "tamWireShape rig101WCRot180Thin 0";
+
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Sphere.bmp" -ann "Sphere" -c "tamWireShape sphere 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Sphere2.bmp" -ann "Sphere2" -c "tamWireShape rig101WCSphere 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "bullet.bmp" -ann "Bullet" -c "tamWireShape bullet 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "180 Arc.bmp" -ann "180 Arc" -c "tamWireShape rig101WC180Arc 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "270 Arc.bmp" -ann "270 Arc" -c "tamWireShape rig101WC270Arc 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Spiral.bmp" -ann "Spiral" -c "tamWireShape rig101WCSpiral 0";
+
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Cylinder.bmp" -ann "Cylinder" -c "tamWireShape cylinder 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Cylinder.bmp" -iol "Cyl +" -ann "Cylinder +" -c "tamWireShape cylinderPos 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Cylinder.bmp" -iol "Cul -" -ann "Cylinder -" -c "tamWireShape cylinderNeg 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "littleCylinder.bmp" -ann "littleCylinder" -c "tamWireShape littleCylinder 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Hexagon.bmp" -ann "Hexagon" -c "tamWireShape rig101WCHexagon 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Pin.bmp" -ann "Pin" -c "tamWireShape rig101WCPin 0";
+
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Hand_right.bmp" -ann "Right Hand" -c "tamWireShape righthand 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Hand_left.bmp" -ann "Left Hand" -c "tamWireShape lefthand 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Footprint.bmp" -ann "Footprint" -c "tamWireShape rig101WCFootprint 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "bulb.bmp" -ann "Bulb" -c "tamWireShape bulb 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "plus.bmp" -ann "Plus" -c "tamWireShape plus 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Angle.bmp" -ann "Angle" -c "tamWireShape rig101WCAngle 0";
+
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "pyramide1.bmp" -ann "Pyramide" -c "tamWireShape pyramide 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "pyramide2.bmp" -ann "Pyramide1" -c "tamWireShape rig101WC12Pyramid 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "pyramide3.bmp" -ann "Pyramide2" -c "tamWireShape rig101WCPyramid 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "diamond.bmp" -ann "Diamond" -c "tamWireShape Diamant 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Spear2.bmp" -ann " Spear2" -c "tamWireShape rig101WC12Spear 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Aim.bmp" -ann "Aim" -c "tamWireShape rig101WCAim2 0";
+
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Cone.bmp" -ann "Cone" -c "tamWireShape rig101WCCone 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Rombus2.bmp" -ann "Rombus2" -c "tamWireShape rig101WCRombus2 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Rombus3.bmp" -ann "Rombus3" -c "tamWireShape rig101WCRombus3 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Spear.bmp" -ann "Spear" -c "tamWireShape rig101WCSpear 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Jack.bmp" -ann "Jack" -c "tamWireShape rig101WCJack 0";
+
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Nail.bmp" -ann "Nail" -c "tamWireShape rig101WCNail 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Double Nail.bmp" -ann "Double Nail" -c "tamWireShape rig101WC2Nail 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Four Nail.bmp" -ann "Four Nail" -c "tamWireShape rig101WC4Nail 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Sun.bmp" -ann "Sun" -c "tamWireShape rig101WCSun 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Vision.bmp" -ann "Vision" -c "tamWireShape rig101WCDumbell 0";
+
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Cog.bmp" -ann "Cog" -c "tamWireShape rig101WCCog 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Transform.bmp" -ann "Transform" -c "tamWireShape rig101WCTransform 0";
+
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Pointer.bmp" -ann "Pointer" -c "tamWireShape rig101WCPointer 0";
+        iconTextButton -w 42 -h 42 -style "iconAndTextHorizontal" -image "Fly.bmp" -ann "Vision" -c "tamWireShape Fly 0";
+    setParent ..;
+
+    setParent ..;
+
+    // Tab Nodes ===================================================================
+    columnLayout -p $child5 -adjustableColumn true;
+
+    rowColumnLayout -nc 8 -cw 1 33 -cw 2 33 -cw 3 33 -cw 4 33 -cw 5 33 -cw 6 33 -cw 7 33 -cw 8 33;
+        iconTextButton -w 33 -h 33 -style "iconOnly" -image "plusMinusAverage.bmp" -ann "plusMinusAverage" -c "createUtilNode addPlus \"\"";
+        iconTextButton -w 33 -h 33 -style "iconOnly" -image "plusSimple.bmp" -ann "Simple Addition" -c "createNode addDoubleLinear";
+        iconTextButton -w 33 -h 33 -style "iconOnly" -image "multiplyDivide.bmp" -ann "multiplyDivide" -c "createNode multiplyDivide";
+        iconTextButton -w 33 -h 33 -style "iconOnly" -image "multiplySimple.bmp" -ann "Simple Multiply" -c "createUtilNode simpleMult \"\"";
+        iconTextButton -w 33 -h 33 -style "iconOnly" -image "absolute.bmp" -iol "Abs" -ann "Absolute" -c "createUtilNode abs \"\"";
+        iconTextButton -w 33 -h 33 -style "iconOnly" -image "clamp.bmp" -ann "Clamp" -c "createNode clamp";
+        iconTextButton -w 33 -h 33 -style "iconOnly" -image "setRange.bmp" -ann "setRange" -c "createNode setRange";
+        iconTextButton -w 33 -h 33 -style "iconOnly" -image "absolute.bmp" -iol "Dist" -ann "distanceBetween" -c "createNode distanceBetween";
+
+        iconTextButton -w 33 -h 33 -style "iconOnly" -image "reverse.bmp" -ann "reverse" -c "createNode reverse";
+        iconTextButton -w 33 -h 33 -style "iconOnly" -image "condition.bmp" -ann "condition" -c "createNode condition";
+        iconTextButton -w 33 -h 33 -style "iconOnly" -image "blend3Axis.bmp" -iol "2Axis" -ann "blend2Attr" -c "createUtilNode blend \"\"";
+        iconTextButton -w 33 -h 33 -style "iconOnly" -image "blend3Axis.bmp" -iol "3Axis" -ann "blend3Axis" -c "createUtilNode blendColors \"\"";
+    setParent ..;
+
+    //-------------------------------------------------
+    separator -h 5 -style "none";
+
+    rowLayout -nc 2 -cw 1 130 -cw 2 130 -cl2 center center -adj 1;
+        button -w 130 -l "Add Sel to Graph" -c "hyperShadePanelGraphCommand(\"hyperShadePanel1\", \"addSelected\")";
+        button -w 130 -l "Remove Sel from Graph" -c "hyperShadePanelGraphCommand(\"hyperShadePanel1\", \"removeSelected\")";
+    setParent ..;
+
+    //-------------------------------------------------
+    separator -h 15;
+
+    button -l "print node info" -c printDebugInfos;
+    rowLayout -adj 1 -nc 3 -cw3 100 50 50;
+        text -l "show connections : ";
+        checkBox -label "in" debugInfoIn;
+        checkBox -label "out" debugInfoOut;
+    setParent..;
+
+    rowLayout -adj 1 -nc 2 -cw2 100 100;
+        text -l "precision: ";
+        checkBox -v 1 -align "left" -label "3 decimals only" debugInfoPrecision;
+    setParent..;
+
+    rowLayout -adj 1 -nc 2 -cw2 100 100;
+        text -l "print connectAttr: ";
+        checkBox -v 0 -align "left" -label " " printConn;
+    setParent..;
+
+    scrollField -tx $scrollDebugText -cc saveDebugScroll -wordWrap false -ed true -h 300 debugNodeScroll;
+            popupMenu -b 3;
+            menuItem -l "select highlight" -c "selectCrollPart";
+            menuItem -l "execute highlight" -c "CNrigUtilsExecute";
+            menuItem -l "clear field" -c "clearDebugScroll";
+            menuItem -d 1;
+            // menuItem -l "Left side on connectionEditor" -c "clearDebugScroll";
+            // menuItem -l "Right side on connectionEditor" -c "clearDebugScroll";
+            // menuItem -d 1;
+            menuItem -l "Size : S" -c "scrollField -e -h 300 debugNodeScroll;window -e -h 592 CedricTamUtils";
+            menuItem -l "Size : M" -c "scrollField -e -h 500 debugNodeScroll;window -e -h 792 CedricTamUtils";
+            menuItem -l "Size : XL" -c "scrollField -e -h 900 debugNodeScroll;window -e -h 1192 CedricTamUtils";
+
+    setParent ..;
+
+    // Tab Skin ==============================================================
+    columnLayout -p $child6 -adjustableColumn true;
+
+/*
+    // Cedric Copy/Paste Skin Weight
+    text -w 260 -align "center" -l "Vertices in Clipboard";		
+    textScrollList -h 55 -allowMultiSelection false -doubleClickCommand "select -r `textScrollList -q -si VertexList`;" VertexList;
+    button -l "copy Weight on Clipboard" -c "copyWeightOnClipboard;"; 			
+        
+    separator -h 15;
+    button -l "paste weight" -c "copyWeight;"; 
+    separator -h 15;
+    floatFieldGrp -numberOfFields 1 -cw2 80 30 -ann "factor of average for the 1st vertex" -label "factor" -value1 1 factorField;
+    button -l "average weight" -c "averageWeight";
+    separator -h 15;
+*/
+
+    button -l "hardDelete nonSkin history" -c "deleteNoSkin";
+    button -l "Reskin mesh" -c "ReSkin";
+    button -l "ReBind skeleton" -c "ReSetBindPose";
+    button -l "Transfert skin (on 2 meshs)" -c "TransferSkin";
+
+    //-------------------------------------------------
+    separator -h 15;
+                    
+    button -l "comet Save Weight" -c "cometSaveWeights;";
+
+    //-------------------------------------------------
+    separator -h 15;
+
+    button -l "Smooth Magic" -c "AMautoSmoothUI;";
+
+    //-------------------------------------------------
+    separator -h 15;
+
+    text -bgc 1 .6 0 -fn "boldLabelFont" -l "yzWeightSave";
+    button -l "YZ Weight Save" -c "yzWeightSaveUI;";
+    rowLayout -nc 2 -cw 1 130 -cw 2 130 -cl2 center center -adj 1;
+        button -w 130 -l "Store" -c "yzwsStoreCB; yzwsLoadParticleCB;";
+        button -w 130 -l "Restore Skin" -c "yzwsRestoreCB 0";
+    setParent ..;
+
+    checkBox -vis 0 yzwsStoreGeo;
+    checkBox -vis 0 yzwsSource;
+
+    //-------------------------------------------------
+    separator -h 15;
+
+    text -bgc 0.7 0.7 1 -fn "boldLabelFont" -l "Skin Paster";
+    rowLayout -nc 2 -cw 1 130 -cw 2 130 -cl2 center center -adj 1;
+        button -w 130 -l "Copy Weights" -c ("qa_fromUIcopyWeights();");
+        button -w 130 -l "Paste Weights" -c ("qa_fromUIpasteWeights();");
+    setParent ..;
+
+    rowLayout -nc 2 -cw 1 130 -cw 2 130 -cl2 center center -adj 1;
+        button -w 130 -l "Select Inlf." -c "qa_selectInfluences";
+        button -w 130 -l "Match Inlf." -c "qa_matchInfluences";
+    setParent ..;
+
+    frameLayout -l "Copy/Paste HotKeys" -bs etchedIn -cll 1 -cl 1;
+        columnLayout -adj 1;
+        rowColumnLayout -nc 5 -cw 1 35 -cw 2 25 -cw 3 50 -cw 4 50 -cw 5 35;
+            text -label "Copy : " -w 10; 
+            textField -text "a" -w 10 qa_skinPstrCpWtHk;
+            checkBox -label "+ Alt" -align "left" -v 1 qa_skinPstrCpWtHkAltModif; 
+            checkBox -label "+ Ctrl" -align "left" qa_skinPstrCpWtHkCtrlModif; 
+            button -align "center" -w 10 -l "Set.." -c (" qa_skinPstrSetCopyHotkeys();");
+
+            text -label "Paste : "; 
+            textField -text "q" -w 10 qa_skinPstrPstWtHk;
+            checkBox -label "+ Alt" -align "left" -v 1 qa_skinPstrPstWtHkAltModif; 
+            checkBox -label "+ Ctrl" -align "left" qa_skinPstrPstWtHkCtrlModif; 
+            button -align "center" -w 10 -l "Set.." -c (" qa_skinPstrSetPasteHotkeys();");
+        setParent ..;
+
+        //-------------------------------------------------
+        separator -h 5 -style "none";
+
+        button -align "center" -w 100 -l "Help" -c ("qa_skinPasterShowHelpUI");
+
+        setParent ..;
+    setParent ..;
+
+    float $weightThreshold = 0.001;
+    float $addMult = 0.5;
+
+    // Copy/Paste options
+    floatFieldGrp -vis 0 -precision 4 -v1 $weightThreshold -w 193 -label "Weights threshold" qa_skinPstrMinW;
+    checkBox -vis 0 -label "Nomalize after Paste" -align "left" -v 1 qa_skinPstrNorm; 
+    rowColumnLayout -vis 0 -nc 2;
+        radioCollection qa_skinPstrPasteModes;
+        radioButton -label "add Weights   x "  qa_skinPstrAddMode ;
+        floatField -precision 3 -min 0.0 -v $addMult qa_skinPstrAddModeMult;
+        radioButton -label "replace Weights" -sl qa_skinPstrReplaceMode;
+    setParent ..;
+
+    rowColumnLayout -vis 0 -nc 2;				
+        checkBox -label "Verbose..." -align "left" -v 0 qa_skinPstrVerbose; 
+        button -w 70 -l "reset options" -c ("qa_skinPstrUIResetOptions();");
+    setParent ..;
+
+    setParent ..;
+
+    // ###############################################################################################################################
+
+    formLayout -edit
+        -af $author top 2
+        -af $author left 2
+        -af $author right 2
+        -ac $tabs "top"    0 $author
+        -af $tabs "left"   0
+        -af $tabs "bottom" 0
+        -af $tabs "right"  0
+    $form;
+
+    tabLayout -edit
+        -tabLabel $child1 "Utils1"
+        -tabLabel $child2 "Utils2"
+        -tabLabel $child3 "Connect"
+        -tabLabel $child4 "Shapes"
+        -tabLabel $child5 "Nodes"
+        -tabLabel $child6 "Skin"
+        -cc "tamSaveTabLayoutSelected"
+    $tabs;
+
+    tamHappyDay;
+
+    CNrigUtilsCount;
+
+    if (`optionVar -q tamUtilTabSelected` > 0)
+        tabLayout -e -sti `optionVar -q tamUtilTabSelected` $tabs;
+
+    showWindow CedricTamUtils;
+};
+
+CTrigUtils;

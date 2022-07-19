@@ -1,0 +1,11 @@
+"""
+script wrapper visage
+SETPS :
+1_Check if eyeBrows et eyeLash sont skine sinon les skiner
+2_L'utilisateur doit selectionner les faces qu'il veut utiliser pour wrapper sont element
+Tester interface QT pour pouvoir setter notre obj puis selectionner les faces EXEMPLE ubiViz
+3_mesh1 = createNode Mesh , en fonction du mesh sette nommer le wrapper
+4_connecter le outMesh du mesh dont les faces ont ete selectionnees dans le inmesh du createNode
+5_sur le mesh1 deleter les faces non selectionnees + renomer le deleteComponent
+6_
+"""

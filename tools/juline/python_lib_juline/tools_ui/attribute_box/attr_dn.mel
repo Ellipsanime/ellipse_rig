@@ -1,0 +1,114 @@
+// smAttrUp.mel ( for 2011)
+// stephenkmann@yahoo.com
+// rewriting as renaming no longer drops a channel to bottom
+// Jan 19th 2011
+//
+global proc smAttrDwn ()
+{    
+int $v = 0;
+string $sel[] = `ls -sl`;
+string $selAttr[] = `channelBox -q -sma mainChannelBox`; // a remplacer par selection dans le tool
+if (`size $selAttr` != 1|| `size $sel` != 1)
+        error "please select only one channel at a time";
+string $userAttr[] = `listAttr -ud $sel[0]`;
+if (stringArrayContains($selAttr[0], $userAttr) != 1)
+        error "sorry cannot move this channel \n";
+
+
+string $hiddenAttr[];
+for ($ua in $userAttr)
+	{
+	if(`getAttr -k ($sel[0] + "." + $ua)` == `getAttr -cb ($sel[0] + "." + $ua)`)
+		$hiddenAttr[`size $hiddenAttr`] = $ua;
+	}
+$userAttr = stringArrayRemove($hiddenAttr, $userAttr);
+
+int $uds = `size $userAttr`;
+for ($each in $sel)
+        {
+	int $index = -1;
+	int $n = 0;
+	if ($v == 1)
+	print ("sel attr " + $selAttr[0] + "\n");
+	for ($ua in $userAttr)
+	       {
+               if ($ua == $selAttr[0])
+                        $index = $n;
+                $n++;
+                }
+        if ($v == 1)
+                {
+                print ("the attr " + $userAttr[$index] + " is index " + $index + " \n");
+                print ("the attr +1 = " + $userAttr[$index + 1] + "  \n");
+                }
+        if ($index <= $uds)
+                {
+                int $a = $index ;
+                while ($a < $uds)
+                        {
+                        if ($userAttr[$a] != $userAttr[$index + 1])
+                             {
+                             // get some info about that channel
+                             string $objAttr = ($each + "." + $userAttr[$a]);
+                             string $type = `getAttr -type $objAttr`;
+                             string $enum[];
+                             	if ($type == "enum")
+                             		$enum = `attributeQuery -listEnum -node $each $userAttr[$a]`;
+                             float $min[] = {-3000};
+                             float $max[] = {3000};
+			if (`attributeQuery -rangeExists -n $each $userAttr[$a]`)
+				{
+				$min = `attributeQuery -min -n $each $userAttr[$a]`;
+				$max = `attributeQuery -max -n $each $userAttr[$a]`;
+				 //string $range = `attributeQuery -range $objAttr`;
+				}
+    			float $v = `getAttr $objAttr`;
+			float $smin[] = {-2999};
+			float $smax[] = {2999};
+			if (`attributeQuery -softRangeExists -n $each $userAttr[$a]`)
+    				{
+				$smin = `attributeQuery -smn -n $each $userAttr[$a]`;
+				$smax = `attributeQuery -smx -n $each $userAttr[$a]`;
+				}
+			// names
+			string $longName = `attributeQuery -longName -n $each $userAttr[$a]`;
+			string $shortName = `attributeQuery -shortName -n $each $userAttr[$a]`;
+			string $niceName = `attributeQuery -niceName -n $each $userAttr[$a]`;
+			// connections
+			string $aInputs[] = ` listConnections -p 1 -s 1 -d 0 $objAttr`;
+			string $aOutputs[] = `listConnections -p 1 -s 0 -d 1 $objAttr`;
+
+			// keyable
+			int $cb = `getAttr -cb $objAttr`;
+			int $k = `getAttr -k $objAttr`;
+			int $l = `getAttr -l $objAttr`;
+			setAttr -k 1 -l 0 -cb 0 $objAttr;
+		       // ----------------------------
+		       if ($v == 1)
+		              {
+		              print ("the is " + $objAttr + " keyable " + $k + " locked " + $l + "\n");
+		              print ("----------- deleting "  + $objAttr + " ------------------\n");
+		              }
+
+                             deleteAttr -attribute $userAttr[$a] $each;
+                             if ($v == 1)
+	               	       print ("-ln " + $userAttr[$a] + " -shortName " + $shortName + " -niceName " + $niceName +" -min " + $min[0] +" -max "+$max[0] + "-smn "+$smin[0]+" -smx "+ $smax[0] + "  -at " +  $type  + "\n");
+                             addAttr -ln $userAttr[$a] -shortName $shortName -niceName $niceName -min $min[0] -max $max[0] -smn $smin[0] -smx $smax[0] -en $enum[0] -at $type $each ;
+
+                             setAttr $objAttr $v;
+			     for ($ao in $aOutputs)
+			     	connectAttr -f $objAttr $ao; 
+			if (`size $aInputs` >= 1)
+				connectAttr -f $aInputs[0] $objAttr;
+
+                        setAttr -e -keyable $k -l $l -cb $cb $objAttr;
+                        }
+                        else
+                                print ("skipping " + $userAttr[$a] + "\n");;
+                        $a++;
+                        }
+                }
+        }
+}
+
+smAttrDwn();

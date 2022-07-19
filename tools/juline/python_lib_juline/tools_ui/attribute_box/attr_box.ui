@@ -1,0 +1,2340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>487</width>
+    <height>703</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_9">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QLabel" name="name">
+       <property name="font">
+        <font>
+         <family>Corbel</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Name Attr :</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cbBox_prefix">
+       <property name="font">
+        <font>
+         <family>Corbel</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <item>
+        <property name="text">
+         <string>None</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>lgt_</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>mod_</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>tex_</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>stp_</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lEdit_name">
+       <property name="font">
+        <font>
+         <family>Corbel</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="B_lay_addAttr">
+     <item>
+      <widget class="QCheckBox" name="cb_channelBox">
+       <property name="font">
+        <font>
+         <family>Corbel</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <property name="text">
+        <string>Channel Box</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>|</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rBtn_keyable">
+       <property name="font">
+        <font>
+         <family>Corbel</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="text">
+        <string>Keyable</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="rBtn_displayable">
+       <property name="font">
+        <font>
+         <family>Corbel</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="text">
+        <string>Displayable</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="lay_setAttr">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QGroupBox" name="gBox_float">
+         <property name="styleSheet">
+          <string notr="true">QGroupBox{border: 1px solid rgb(0, 175, 240);margin-top:5px;} QGroupBox::title {left:15px; top:-6px; padding-left:4px; padding-right:4px;}</string>
+         </property>
+         <property name="title">
+          <string>Float</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>4</number>
+          </property>
+          <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="2" column="0">
+             <widget class="QLabel" name="label">
+              <property name="font">
+               <font>
+                <family>Corbel</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::RightToLeft</enum>
+              </property>
+              <property name="text">
+               <string>Default</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="indent">
+               <number>15</number>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0">
+             <widget class="QCheckBox" name="cb_max">
+              <property name="font">
+               <font>
+                <family>Corbel</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::WheelFocus</enum>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::RightToLeft</enum>
+              </property>
+              <property name="text">
+               <string>Max</string>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1">
+             <widget class="QDoubleSpinBox" name="dsb_max">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="font">
+               <font>
+                <family>Corbel</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::WheelFocus</enum>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(41, 20, 26); color: rgb(179, 179, 179)</string>
+              </property>
+              <property name="locale">
+               <locale language="C" country="AnyCountry"/>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::NoButtons</enum>
+              </property>
+              <property name="decimals">
+               <number>2</number>
+              </property>
+              <property name="minimum">
+               <double>-9999.989999999999782</double>
+              </property>
+              <property name="maximum">
+               <double>9999.989999999999782</double>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="dsb_default">
+              <property name="font">
+               <font>
+                <family>Corbel</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::WheelFocus</enum>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(42, 42, 42)</string>
+              </property>
+              <property name="locale">
+               <locale language="C" country="AnyCountry"/>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::NoButtons</enum>
+              </property>
+              <property name="correctionMode">
+               <enum>QAbstractSpinBox::CorrectToNearestValue</enum>
+              </property>
+              <property name="minimum">
+               <double>-9999.989999999999782</double>
+              </property>
+              <property name="maximum">
+               <double>9999.989999999999782</double>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QDoubleSpinBox" name="dsb_min">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="font">
+               <font>
+                <family>Corbel</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::WheelFocus</enum>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(20, 41, 41); color: rgb(179, 179, 179)</string>
+              </property>
+              <property name="locale">
+               <locale language="C" country="AnyCountry"/>
+              </property>
+              <property name="frame">
+               <bool>false</bool>
+              </property>
+              <property name="buttonSymbols">
+               <enum>QAbstractSpinBox::NoButtons</enum>
+              </property>
+              <property name="minimum">
+               <double>-9999.989999999999782</double>
+              </property>
+              <property name="maximum">
+               <double>9999.989999999999782</double>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QCheckBox" name="cb_min">
+              <property name="font">
+               <font>
+                <family>Corbel</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::WheelFocus</enum>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::RightToLeft</enum>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>Min</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="preset">
+              <property name="font">
+               <font>
+                <family>Corbel</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>Preset :</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="cbb_presetFloat">
+              <property name="font">
+               <font>
+                <family>Corbel</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <item>
+               <property name="text">
+                <string>None</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>-10 &gt; 10</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>0 &gt; 10</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>-1 &gt; 1</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>0 &gt; 1</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="verticalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_addFloat">
+            <property name="font">
+             <font>
+              <family>Corbel</family>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::WheelFocus</enum>
+            </property>
+            <property name="text">
+             <string>Add Float</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="gBox_bool">
+         <property name="font">
+          <font>
+           <family>Corbel</family>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QGroupBox{border: 1px solid rgb(65, 235, 195);margin-top:5px;} QGroupBox::title {left:15px; top:-6px; padding-left:4px; padding-right:4px;}</string>
+         </property>
+         <property name="title">
+          <string>Boolean</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>4</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="btn_addBool">
+            <property name="font">
+             <font>
+              <family>Corbel</family>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Add Boolean</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="font">
+          <font>
+           <family>Corbel</family>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QGroupBox{border-color: rgb(65, 255, 165)}
+QGroupBox{border: 1px solid rgb(65, 255, 165);margin-top:5px;} QGroupBox::title {left:15px; top:-6px; padding-left:4px; padding-right:4px;}</string>
+         </property>
+         <property name="title">
+          <string>Custom attr</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <property name="spacing">
+           <number>2</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QComboBox" name="cbb_customAttr">
+            <property name="font">
+             <font>
+              <family>Corbel</family>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <item>
+             <property name="text">
+              <string>OFF/ON</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Hide/Show</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_addCustomAttr">
+            <property name="font">
+             <font>
+              <family>Corbel</family>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::WheelFocus</enum>
+            </property>
+            <property name="text">
+             <string>Add</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="Enum">
+       <property name="minimumSize">
+        <size>
+         <width>300</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Corbel</family>
+         <pointsize>9</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QGroupBox{border: 1px solid rgb(0, 140, 130);margin-top:5px;} QGroupBox::title {left:15px; top:-6px; padding-left:4px; padding-right:4px;}</string>
+       </property>
+       <property name="title">
+        <string>Enum</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_14">
+        <property name="spacing">
+         <number>2</number>
+        </property>
+        <property name="leftMargin">
+         <number>4</number>
+        </property>
+        <property name="topMargin">
+         <number>6</number>
+        </property>
+        <property name="rightMargin">
+         <number>4</number>
+        </property>
+        <property name="bottomMargin">
+         <number>4</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="nameEnum">
+            <property name="font">
+             <font>
+              <family>Corbel</family>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Name Enum :</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="le_enumName">
+            <property name="font">
+             <font>
+              <family>Corbel</family>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::WheelFocus</enum>
+            </property>
+            <property name="inputMethodHints">
+             <set>Qt::ImhNone</set>
+            </property>
+            <property name="echoMode">
+             <enum>QLineEdit::Normal</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_addEnum">
+            <property name="font">
+             <font>
+              <family>Corbel</family>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Add</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0">
+           <widget class="QListWidget" name="lw_enum">
+            <property name="font">
+             <font>
+              <family>Corbel</family>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::WheelFocus</enum>
+            </property>
+            <property name="editTriggers">
+             <set>QAbstractItemView::DoubleClicked</set>
+            </property>
+            <property name="tabKeyNavigation">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <layout class="QVBoxLayout" name="verticalLayout_7">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="font">
+               <font>
+                <family>Corbel</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>prefix :</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <spacer name="horizontalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QComboBox" name="cbb_prefixEnum">
+                <property name="font">
+                 <font>
+                  <family>Corbel</family>
+                  <pointsize>9</pointsize>
+                 </font>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Del</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>ABC</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>123</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>CAP</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>min</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Maj</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btn_addPrefix">
+                <property name="maximumSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="focusPolicy">
+                 <enum>Qt::WheelFocus</enum>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btn_enumUp">
+              <property name="font">
+               <font>
+                <family>Corbel</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>Up</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btn_enumDn">
+              <property name="font">
+               <font>
+                <family>Corbel</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>Dn</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="btn_enumDel">
+              <property name="font">
+               <font>
+                <family>Corbel</family>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>Delete</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLineEdit" name="le_enumRename">
+            <property name="font">
+             <font>
+              <family>Corbel</family>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::WheelFocus</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="btn_enumRename">
+            <property name="font">
+             <font>
+              <family>Corbel</family>
+              <pointsize>9</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>Rename</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_addAttrEnum">
+          <property name="font">
+           <font>
+            <family>Corbel</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string>Add Enum</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="gb_editAttr">
+     <property name="styleSheet">
+      <string notr="true">QGroupBox{border: 1px solid rgb(25, 75, 70);margin-top:5px;} QGroupBox::title {left:15px; top:-6px; padding-left:4px; padding-right:4px;}</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="box_editAttr">
+        <item>
+         <widget class="QLabel" name="label_editAttr">
+          <property name="font">
+           <font>
+            <family>Corbel</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(25, 75, 70)</string>
+          </property>
+          <property name="text">
+           <string>Edit existing attribute</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+          <property name="indent">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_showEdit">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(40, 130, 120)</string>
+          </property>
+          <property name="text">
+           <string>▼</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_hideEdit">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(25, 75, 70)</string>
+          </property>
+          <property name="text">
+           <string>▲</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="gb_editing">
+        <property name="styleSheet">
+         <string notr="true">QGroupBox{border-color: rgb(40, 130, 120)}</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <property name="leftMargin">
+          <number>4</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <property name="spacing">
+            <number>2</number>
+           </property>
+           <item>
+            <widget class="QPushButton" name="btn_loadObj">
+             <property name="maximumSize">
+              <size>
+               <width>130</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Load obj</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_editAttr">
+             <property name="maximumSize">
+              <size>
+               <width>130</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Edit Attr</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_updateAttr">
+             <property name="maximumSize">
+              <size>
+               <width>130</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Update Attr</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_delAttr">
+             <property name="maximumSize">
+              <size>
+               <width>130</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Delete Attr</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_copyAttr">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Copy Attr</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_transferAttr">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Transfer Attr</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="QLineEdit" name="line_objLoaded">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QTreeWidget" name="treeW_extraAttr">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">alternate-background-color: rgb(76, 76, 76);
+alternate-background-color: rgb(33, 33, 33);</string>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::ExtendedSelection</enum>
+             </property>
+             <property name="autoExpandDelay">
+              <number>1</number>
+             </property>
+             <property name="indentation">
+              <number>0</number>
+             </property>
+             <property name="sortingEnabled">
+              <bool>true</bool>
+             </property>
+             <attribute name="headerCascadingSectionResizes">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="headerMinimumSectionSize">
+              <number>25</number>
+             </attribute>
+             <attribute name="headerShowSortIndicator" stdset="0">
+              <bool>true</bool>
+             </attribute>
+             <column>
+              <property name="text">
+               <string>Attr name</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Type</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string notr="true">Channel Box</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>State</string>
+              </property>
+             </column>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <spacer name="verticalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_hideAttr">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Hide</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_showAttr">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Show</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_lockAttr">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Lock</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_unlockAttr">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Free</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_attrUp">
+             <property name="text">
+              <string>Up</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btn_attrDn">
+             <property name="text">
+              <string>Dn</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="gb_attrBaseAll">
+     <property name="styleSheet">
+      <string notr="true">QGroupBox{border: 1px solid rgb(15, 51, 51);margin-top:5px;} QGroupBox::title {left:15px; top:-6px; padding-left:4px; padding-right:4px;}</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>2</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>2</number>
+      </property>
+      <property name="bottomMargin">
+       <number>2</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="box_attrBase">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="label_attrBase">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Corbel</family>
+            <pointsize>9</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(15, 51, 51)</string>
+          </property>
+          <property name="text">
+           <string>Base attribute</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+          <property name="indent">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_showAttrBase">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(38, 128, 128)</string>
+          </property>
+          <property name="text">
+           <string>▼</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btn_hideAttrBase">
+          <property name="maximumSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(15, 51, 51)</string>
+          </property>
+          <property name="text">
+           <string>▲</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="gb_attrBase">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>140</height>
+         </size>
+        </property>
+        <property name="baseSize">
+         <size>
+          <width>210</width>
+          <height>170</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QGroupBox{border: 1px solid rgb(27, 89, 89);margin-top:5px;} QGroupBox::title {left:15px; top:-6px; padding-left:4px; padding-right:4px;}</string>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>4</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
+         </property>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_3">
+           <item row="2" column="5">
+            <widget class="QCheckBox" name="cb_sclAll">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>All</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QCheckBox" name="cb_sclY">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>y  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="label_10">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Scale</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QCheckBox" name="cb_sclZ">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>z  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QCheckBox" name="cb_trsZ">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>z  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="4">
+            <widget class="QLabel" name="lbl_pipe3">
+             <property name="styleSheet">
+              <string notr="true">color: rgb(27, 89, 89)</string>
+             </property>
+             <property name="text">
+              <string>   |   </string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="5">
+            <widget class="QCheckBox" name="cb_rotAll">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>All</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="6">
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QCheckBox" name="cb_trsX">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>x  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_8">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Rotate</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_9">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Translate  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2">
+            <widget class="QCheckBox" name="cb_rotY">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>y  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="4">
+            <widget class="QLabel" name="lbl_pipe2">
+             <property name="styleSheet">
+              <string notr="true">color: rgb(27, 89, 89)</string>
+             </property>
+             <property name="text">
+              <string>   |   </string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="3">
+            <widget class="QCheckBox" name="cb_rotZ">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>z  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QCheckBox" name="cb_sclX">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>x  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="cb_rotX">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>x  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="6">
+            <widget class="QLabel" name="label_14">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="4">
+            <widget class="QLabel" name="lbl_pipe1">
+             <property name="styleSheet">
+              <string notr="true">color: rgb(27, 89, 89)</string>
+             </property>
+             <property name="text">
+              <string>   |   </string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="6">
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
+            <widget class="QCheckBox" name="cb_trsY">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>y  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="5">
+            <widget class="QCheckBox" name="cb_trsAll">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>All</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="label_11">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Joint orient  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QCheckBox" name="cb_jtOX">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>x  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QCheckBox" name="cb_jtOY">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>y  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3">
+            <widget class="QCheckBox" name="cb_jtOZ">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>z  </string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="4">
+            <widget class="QLabel" name="lbl_pipe3_2">
+             <property name="styleSheet">
+              <string notr="true">color: rgb(27, 89, 89)</string>
+             </property>
+             <property name="text">
+              <string>   |   </string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="5">
+            <widget class="QCheckBox" name="cb_jtOAll">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="text">
+              <string>All</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="3" column="1">
+            <widget class="QPushButton" name="btn_nonkey">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Nonkeyable</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="btn_unlock">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Unlock</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QPushButton" name="btn_show">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Show</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QPushButton" name="btn_lock">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Lock</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QPushButton" name="btn_key">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Keyable</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QPushButton" name="btn_lockNhide">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::WheelFocus</enum>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Lock and Hide</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="btn_unlockNshow">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Unlock and Show</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="btn_hide">
+             <property name="font">
+              <font>
+               <family>Corbel</family>
+               <pointsize>9</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Hide</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_5">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+  <zorder></zorder>
+  <zorder>gb_editAttr</zorder>
+  <zorder>gb_attrBaseAll</zorder>
+  <zorder></zorder>
+  <zorder></zorder>
+  <zorder>verticalSpacer_5</zorder>
+ </widget>
+ <tabstops>
+  <tabstop>cbBox_prefix</tabstop>
+  <tabstop>lEdit_name</tabstop>
+  <tabstop>cb_channelBox</tabstop>
+  <tabstop>rBtn_keyable</tabstop>
+  <tabstop>rBtn_displayable</tabstop>
+  <tabstop>cb_min</tabstop>
+  <tabstop>dsb_min</tabstop>
+  <tabstop>dsb_default</tabstop>
+  <tabstop>cb_max</tabstop>
+  <tabstop>dsb_max</tabstop>
+  <tabstop>cbb_presetFloat</tabstop>
+  <tabstop>btn_addFloat</tabstop>
+  <tabstop>btn_addBool</tabstop>
+  <tabstop>cbb_customAttr</tabstop>
+  <tabstop>btn_addCustomAttr</tabstop>
+  <tabstop>le_enumName</tabstop>
+  <tabstop>btn_addEnum</tabstop>
+  <tabstop>cbb_prefixEnum</tabstop>
+  <tabstop>btn_addPrefix</tabstop>
+  <tabstop>btn_enumUp</tabstop>
+  <tabstop>btn_enumDn</tabstop>
+  <tabstop>btn_enumDel</tabstop>
+  <tabstop>lw_enum</tabstop>
+  <tabstop>le_enumRename</tabstop>
+  <tabstop>btn_enumRename</tabstop>
+  <tabstop>btn_addAttrEnum</tabstop>
+  <tabstop>btn_showEdit</tabstop>
+  <tabstop>btn_hideEdit</tabstop>
+  <tabstop>btn_loadObj</tabstop>
+  <tabstop>btn_editAttr</tabstop>
+  <tabstop>btn_updateAttr</tabstop>
+  <tabstop>btn_delAttr</tabstop>
+  <tabstop>btn_copyAttr</tabstop>
+  <tabstop>btn_transferAttr</tabstop>
+  <tabstop>line_objLoaded</tabstop>
+  <tabstop>btn_showAttrBase</tabstop>
+  <tabstop>btn_hideAttrBase</tabstop>
+  <tabstop>treeW_extraAttr</tabstop>
+  <tabstop>cb_trsX</tabstop>
+  <tabstop>cb_trsY</tabstop>
+  <tabstop>cb_trsZ</tabstop>
+  <tabstop>cb_trsAll</tabstop>
+  <tabstop>cb_rotX</tabstop>
+  <tabstop>cb_rotY</tabstop>
+  <tabstop>cb_rotZ</tabstop>
+  <tabstop>cb_rotAll</tabstop>
+  <tabstop>cb_sclX</tabstop>
+  <tabstop>cb_sclY</tabstop>
+  <tabstop>cb_sclZ</tabstop>
+  <tabstop>cb_sclAll</tabstop>
+  <tabstop>btn_lock</tabstop>
+  <tabstop>btn_unlock</tabstop>
+  <tabstop>btn_show</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>btn_showAttrBase</sender>
+   <signal>clicked()</signal>
+   <receiver>gb_attrBase</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>535</x>
+     <y>601</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>404</x>
+     <y>696</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_hideAttrBase</sender>
+   <signal>clicked()</signal>
+   <receiver>gb_attrBase</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>555</x>
+     <y>601</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>451</x>
+     <y>696</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_showEdit</sender>
+   <signal>clicked()</signal>
+   <receiver>gb_editing</receiver>
+   <slot>show()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>529</x>
+     <y>347</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>313</x>
+     <y>552</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_hideEdit</sender>
+   <signal>clicked()</signal>
+   <receiver>gb_editing</receiver>
+   <slot>hide()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>555</x>
+     <y>347</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>376</x>
+     <y>552</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_trsAll</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_trsX</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>623</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>112</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_trsAll</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_trsY</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>623</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>153</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_trsAll</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_trsZ</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>623</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>193</x>
+     <y>623</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_rotAll</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_rotX</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>646</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>112</x>
+     <y>646</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_rotAll</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_rotY</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>646</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>153</x>
+     <y>646</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_rotAll</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_rotZ</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>646</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>193</x>
+     <y>646</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_sclAll</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_sclX</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>669</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>112</x>
+     <y>669</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_sclAll</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_sclY</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>669</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>153</x>
+     <y>669</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_sclAll</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_sclZ</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>261</x>
+     <y>669</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>193</x>
+     <y>669</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_min</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>dsb_min</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>69</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>158</x>
+     <y>103</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_max</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>dsb_max</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>64</x>
+     <y>145</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>158</x>
+     <y>151</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rBtn_keyable</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_channelBox</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>475</x>
+     <y>55</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>27</x>
+     <y>46</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rBtn_keyable</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_channelBox</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>475</x>
+     <y>55</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>90</x>
+     <y>54</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_jtOAll</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_jtOZ</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>229</x>
+     <y>690</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>179</x>
+     <y>692</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_jtOAll</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_jtOY</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>235</x>
+     <y>683</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>141</x>
+     <y>681</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cb_jtOAll</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>cb_jtOX</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>241</x>
+     <y>689</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>80</x>
+     <y>690</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

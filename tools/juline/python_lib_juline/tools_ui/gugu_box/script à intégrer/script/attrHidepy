@@ -1,0 +1,14 @@
+"""
+Add attr hide
+select 1_ctrl + 2_msh to connect 
+"""
+import maya.cmds as mc
+
+def attrShow(Name):
+	ctrl = mc.ls(sl=True)
+	attr = "show" + Name
+	mc.addAttr(ctrl[0], attributeType='float', defaultValue=1, minValue=0, maxValue=1, hidden=False, keyable=False, shortName=attr)
+    longAttr = ctrl[0] + "." + attr
+    mc.setAttr(longAttr, channelBox=True)
+    mc.connectAttr(longAttr, ctrl[-1] + ".visibility")
+attrShow(Name="Coat")

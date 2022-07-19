@@ -1,0 +1,955 @@
+//yzWeightSave2
+//manage your skinClusters with black magic
+//now works with clusters!
+
+
+//yzWeight algo lib ----------------------------------------------------
+proc float roundoff(float $value, int $dec) {
+// $value == value to round off
+// $dec == number of decimal places
+	$bump=.5;
+	if($value<0) $bump=-0.5;
+
+	$value=trunc($value*pow(10,$dec)+$bump)/pow(10,$dec);
+	return $value;
+}
+
+//get order from the x highest value in list
+proc int[] getSortIndex(float $list[], int $max) {
+	//work list
+	float $listTmp[]=$list;
+
+	//reverse sort
+	float $listSortTmp[]=sort($list);
+	float $listSort[];
+	for($i=(size($listSortTmp)-1); $i>=0; $i--)
+		$listSort[size($listSort)]=$listSortTmp[$i];
+
+	int $sort[];
+	for($i=0; $i<size($listSort); $i++) {
+		for($j=0; $j<size($listTmp); $j++) {
+			if($listSort[$i]==$listTmp[$j]) {
+				$sort[$i]=$j;
+				$listTmp[$j]=-1;
+				break;
+			}
+		}
+		if(size($sort)==$max) break;
+	}
+	return $sort;
+}
+
+proc float[] sortFloat(float $list[], int $sort[]) {
+	float $listNew[];
+	for($i=0; $i<size($sort); $i++) $listNew[$i]=$list[$sort[$i]];
+	return $listNew;
+}
+
+proc int[] sortInt(int $list[], int $sort[]) {
+	int $listNew[];
+	for($i=0; $i<size($sort); $i++) $listNew[$i]=$list[$sort[$i]];
+	return $listNew;
+}
+
+proc int stringArrayCompare(string $a[], string $b[]) {
+	if(size($a)!=size($b)) return 0;
+	for($i=0;$i<size($a);$i++) if($a[$i]!=$b[$i]) return 0;
+	return 1;
+}
+
+proc string[] getPointList(string $node) {
+	//return `filterExpand -sm 31 -sm 28 -sm 36 -sm 47 -sm 46 ($node+".cp[*]")`;
+	return `ls -fl ($node+".cp[*]")`;
+}
+
+
+//yzWeight lib ------------------------------------------------------------
+
+proc string[] getParticleInfList(string $pcl) {
+	$size=`getAttr -s ($pcl+".skinWeightList")`;
+	string $infList[];
+	if($size>1)	$infList=getAttr($pcl+".skinWeightList[0:"+($size-1)+"]");
+	else $infList[0]=getAttr($pcl+".skinWeightList[0]");
+	return $infList;
+}
+
+proc string[] getParticleClusterList(string $pcl) {
+	$size=`getAttr -s ($pcl+".clusterList")`;
+	string $infList[];
+	if($size>1)	$infList=getAttr($pcl+".clusterList[0:"+($size-1)+"]");
+	else $infList[0]=getAttr($pcl+".clusterList[0]");
+	return $infList;
+}
+
+
+proc resetSkinCluster(string $skin, int $ids[]) {
+	int $cSize=`getAttr -s ($skin+".wl")`;
+	if(size($ids)) $cSize=size($ids);
+	int $iSize=size(`skinCluster -q -inf $skin`);
+
+	string $zero="";
+	for($i=0;$i<$iSize;$i++) $zero+=" 0";
+
+	//progress bar
+	int $amount=0; float $processing=0;
+	progressWindow -title ("reset "+$skin) -progress 0 -status ("cv: 0/"+$cSize+" ("+$iSize+" influences)");
+
+	for($i=0;$i<$cSize;$i++) {
+		$id=$i;
+		if(size($ids)) $id=$ids[$i];
+
+		string $cmd=("setAttr "+$skin+".wl["+$id+"].w[0:"+($iSize-1)+"]"+$zero);
+		eval $cmd;
+
+		//progress bar
+		$processing=((float)$i/$cSize)*100;
+		$amount=(int)$processing;
+		progressWindow -e -progress $amount -status ("cv: "+$i+"/"+$cSize+" ("+$iSize+" influences)");
+	}
+	progressWindow -endProgress;
+}
+
+global proc float[] getWeightID(string $pclShape, int $id) {
+
+	float $wList[];
+
+	$w=0;
+	while(attributeExists(("w"+$w+"W"),$pclShape)) {//www combo
+		float $weight[]=`getParticleAttr -array 1 -at ("w"+$w+"W") ($pclShape+".pt["+$id+"]")`;
+		float $index[]=`getParticleAttr -array 1 -at ("i"+$w+"W") ($pclShape+".pt["+$id+"]")`;
+		$wList[(int)$index[0]]=$weight[0];
+		$w++;
+	}
+
+	return $wList;
+}
+
+proc int[] getRemap(string $old[], string $new[]) {
+	int $remap[];
+	for($i=0; $i<size($new); $i++) {
+		for($j=0; $j<size($old); $j++) {
+			if($old[$j]==$new[$i]) {
+				$remap[$i]=$j;
+				break;
+			}
+			else $remap[$i]=-1;
+		}
+	}
+	return $remap;
+}
+
+proc yzDeoptCluster(string $clst, string $mesh) {
+
+	string $clstSet[]=`listConnections -type objectSet $clst`;
+	string $ptIn[]=`sets -q $clstSet[0]`;
+	$ptIn=`ls -fl $ptIn`;
+	string $ptAll[]=`ls -fl ($mesh+".cp[*]")`;
+	string $ptOut[]=stringArrayRemove($ptIn, $ptAll);
+
+	if(size($ptOut)) {
+		sets -fe $clstSet[0] $ptOut;
+		percent -v 0 $clst $ptOut;
+	}
+}
+
+proc string getShape(string $mesh) {
+	string $shapes[]=`listRelatives -pa -s $mesh`;
+	for($shape in $shapes) {
+		if(getAttr($shape+".intermediateObject")==0) return $shape;
+	}
+	return "";
+}
+
+//yzWeight core ----------------------------------------------------------
+
+global proc string yzWeightParticleBind(string $pcl, string $geo, int $mode, int $src) {
+//$mode: 0 is normal bind, 1 is null bind (all influences to 0)
+//$src: 0 from skin, 1 from clusters
+
+	//check args
+	if($src==0) if(!attributeExists("skinWeightList",$pcl)) error "particle node is not a skin weight backup";
+	if($src==1) if(!attributeExists("clusterList",$pcl)) error "particle node is not a cluster weight backup";
+
+	//processing
+	string $infList[];
+	int $maxInf;
+
+	if($src==0) {
+		$infList=getParticleInfList($pcl);
+		$maxInf=getAttr($pcl+".skinMaxInf");
+	}
+	if($src==1) {
+		$infList=getParticleClusterList($pcl);
+		$maxInf=getAttr($pcl+".clusterMaxInf");
+	}
+
+	//new skin
+	string $hasSkin[]=`listHistory -lv 2 $geo`;
+	$hasSkin=`ls -et skinCluster $hasSkin`;
+	if(size($hasSkin)) error ($geo+" has already a skinCluster");
+
+	//bind
+	string $newSkin[];
+
+	if(nodeType($infList[0])=="joint")
+		$newSkin=`skinCluster -omi 1 -mi $maxInf -tsb $infList[0] $geo`;
+	else {
+		select $infList[0];
+		string $dummy=`joint`;
+		$newSkin=`skinCluster -omi 1 -mi $maxInf -tsb $dummy $geo`;
+		disconnectAttr ($dummy+".worldMatrix") ($newSkin[0]+".matrix[0]");
+		connectAttr ($infList[0]+".worldMatrix") ($newSkin[0]+".matrix[0]");
+		delete $dummy;
+		if(!attributeExists("liw",$infList[0])) addAttr -at "bool" -sn "liw" -ln "lockInfluenceWeights" $infList[0];
+		connectAttr ($infList[0]+".liw") ($newSkin[0]+".lw[0]");
+	}
+
+	if($mode==1)
+		resetSkinCluster $newSkin[0] {};
+
+	string $cmd="";
+	if($mode==1) $cmd="skinCluster -e -lw true -wt 0 ";
+	else $cmd="skinCluster -e ";
+
+	for($i=1; $i<size($infList); $i++) {
+
+		if(!objExists($infList[$i])) {
+			warning($infList[$i]+" is missing. ->skipped");
+			continue;
+		}
+		$cmd+=("-ai "+$infList[$i]+" ");
+
+		//influence objects
+		string $shapes[]=`listRelatives -pa -s $infList[$i]`;
+		if(size($shapes)) if(0) { //bloque a cause de je sais pas encore comment faire :)
+			string $base[]=`duplicate $shapes[0]`;
+			$base[0]=`rename $base[0] ($base[0]+"Base")`;
+			string $baseShape[]=`listRelatives -pa -s $base[0]`;
+			hide $base;
+
+			$cmd+=("-bsh "+$baseShape[0]+" -ug ");
+
+			setAttr ($newSkin[0]+".useComponents") 1;
+		}
+	}
+	$cmd+=($newSkin[0]+";");
+	eval $cmd;
+
+	if($mode==1)
+		for($inf0 in $infList)
+			if(attributeExists("liw",$inf0)) setAttr ($inf0+".liw") 0;
+
+
+	//exit
+	if($src==1) setAttr ($newSkin[0]+".normalizeWeights") 0;
+	return $newSkin[0];
+}
+
+global proc yzWeightRestoreClusters(string $pcl, string $geo, int $ids[], int $src) {
+
+	string $sel[]=`ls -sl`;
+
+	//check args
+	string $srcList="clusterList";
+	if($src==0) $srcList="skinWeightList";
+	if(!attributeExists($srcList,$pcl)) error "particle node is not a weight backup";
+
+
+	//get infos
+	string $pclShape[]=`listRelatives -pa -s $pcl`;
+
+	int $maxInf;
+	string $infList[];
+	if($src==0) {
+		$maxInf=getAttr($pcl+".skinMaxInf");
+		$infList=getParticleInfList($pcl);
+	} else {
+		$maxInf=getAttr($pcl+".clusterMaxInf");
+		$infList=getParticleClusterList($pcl);
+	}
+
+	if(size($geo)==0) $geo=getAttr($pcl+".skinGeometry");
+	string $pointList[]=getPointList($geo);
+
+	string $geoClusters[]=`listHistory $geo`;
+	$geoClusters=`ls -et cluster $geoClusters`;
+
+
+	//build valid cluster index for restore
+	string $clusterList[];
+
+	int $clstRestoreID[], $ID=0;
+	string $clstRestore[];
+
+	for($i=0; $i<$maxInf; $i++) {
+		$clstRestoreID[$i]=-1; //do not restore
+
+		if(objExists($infList[$i])) {
+			string $clst[]=`listConnections -type "cluster" $infList[$i]`;
+			$clusterList[$i]=$clst[0];
+
+			$clstRestoreID[$i]=$ID;
+		}
+	}
+
+	//clean up cluster to be restored
+	for($clst in $clstRestore) {
+		yzDeoptCluster($clst, $geo);
+	}
+
+	//restore weights
+	if($src==1) {
+		for($i=0; $i<$maxInf; $i++) {
+			if($clstRestoreID[$i]!=-1) {
+				float $wList[]=getAttr($pclShape[0]+".c"+$i+"W");
+				for($p=0; $p<size($pointList); $p++) {
+					percent -v $wList[$p] $clusterList[$i] $pointList[$p];
+				}
+			}
+		}
+	} else {
+		for($i=0; $i<$maxInf; $i++) {
+			float $iList[]=getAttr($pclShape[0]+".i"+$i+"W");
+			float $wList[]=getAttr($pclShape[0]+".w"+$i+"W");
+
+			for($p=0; $p<size($pointList); $p++) {
+				int $c=$iList[$p];
+				if(objExists($clusterList[$c])) if(stringArrayContains($clusterList[$c], $geoClusters)) {
+					percent -v $wList[$p] $clusterList[$c] $pointList[$p];
+				}
+			}
+		}
+	}
+}
+
+
+global proc yzWeightRestore(string $pcl, string $geo, int $ids[], int $src) {
+
+	string $sel[]=`ls -sl`;
+
+	//check args
+	string $srcList="skinWeightList";
+	if($src==1) $srcList="clusterList";
+	if(!attributeExists($srcList,$pcl)) error "particle node is not a weight backup";
+
+	//get infos
+	string $pclShape[]=`listRelatives -pa -s $pcl`;
+	int $maxInf;
+	string $infList[];
+	if($src==0) {
+		$maxInf=getAttr($pcl+".skinMaxInf");
+		$infList=getParticleInfList($pcl);
+	} else {
+		$maxInf=getAttr($pcl+".clusterMaxInf");
+		$infList=getParticleClusterList($pcl);
+	}
+
+	if(size($geo)==0) $geo=getAttr($pcl+".skinGeometry");
+	string $pointList[]=getPointList($geo);
+
+	//has skin
+	string $skin[]=`listHistory $geo`;
+	$skin=`ls -et skinCluster $skin`;
+//print "-skin: ";print $skin;
+	//skin if not
+	int $doReset=1;
+	if(size($skin)==0) {
+		$skin[0]=yzWeightParticleBind($pcl, $geo, 1, $src);
+		$doReset=0;
+	}
+
+	//remap?
+	int $doRemap=0;
+	string $infListNew[]=`skinCluster -q -inf $skin[0]`;
+	if(!stringArrayCompare($infList,$infListNew))
+		$doRemap=1;
+
+
+	$iSize=size($infList);
+	$cSize=size($pointList);
+	if(size($ids)) $cSize=size($ids);
+
+	//get old inf list for remap
+	int $remap[];
+	if($doRemap) {
+		string $infListOld[]=`skinCluster -q -inf $skin[0]`;
+		$remap=getRemap($infListOld, $infList);
+	}
+
+	//reskin
+	if($doReset) resetSkinCluster($skin[0], $ids);
+
+	//transfer new values
+	int $amount=0; float $processing=0;
+	progressWindow -title ("importing "+$pcl) -progress $amount -status ("maxinf: 0/"+$maxInf);
+
+	if($src==0) {
+		for($i=0;$i<$maxInf;$i++) {
+			float $iList[]=getAttr($pclShape[0]+".i"+$i+"W");
+			float $wList[]=getAttr($pclShape[0]+".w"+$i+"W");
+			for($w=0;$w<$cSize;$w++) {
+				if(size($ids)) $w=$ids[$w];
+				if($doRemap) $iList[$w]=$remap[(int)$iList[$w]];
+				if($iList[$w]!=-1)
+					setAttr ($skin[0]+".wl["+$w+"].w["+$iList[$w]+"]") $wList[$w];
+			}
+			//progress bar
+			$processing=((float)$i/$maxInf)*100;
+			$amount=(int)$processing;
+			progressWindow -e -progress $amount -status ("maxinf: "+$i+"/"+$maxInf);
+		}
+	} else {
+		for($i=0;$i<$iSize;$i++) {
+			float $cList[]=getAttr($pclShape[0]+".c"+$i+"W");
+			for($w=0;$w<$cSize;$w++) {
+				$imap=$i;
+				if(size($ids)) $w=$ids[$w];
+				if($doRemap) $imap=$remap[(int)$i];
+				if($cList[$w]!=-1)
+					setAttr ($skin[0]+".wl["+$w+"].w["+$imap+"]") $cList[$w];
+			}
+			//progress bar
+			$processing=((float)$i/$maxInf)*100;
+			$amount=(int)$processing;
+			progressWindow -e -progress $amount -status ("maxinf: "+$i+"/"+$maxInf);
+		}
+
+	}
+	progressWindow -endProgress;
+
+	//normalize skin
+	if($src==0) skinPercent -normalize true $skin[0] $geo;
+
+	//exit
+	select $sel;
+}
+
+
+global proc string[] yzWeightStore(string $node, int $doStoreGeo) {
+
+	//got skin?
+	string $skin[]=`listHistory $node`;
+	$skin=`ls -et skinCluster $skin`;
+
+	//got clusters?
+	string $clusters[]=`listHistory $node`;
+	$clusters=`ls -et cluster $clusters`;
+
+	if(size($skin)<1 && size($clusters)<1) error ($node+" has no skin/clusters..");
+	int $doSkin, $doClusters;
+	if(size($skin)) $doSkin=1;
+	if(size($clusters)) $doClusters=1;
+
+
+	//get infos
+	string $pointList[]=getPointList($node);
+
+	//skin infos
+	string $infList[];
+	int $maxInf;
+	if($doSkin) {
+		$infList=`skinCluster -q -inf $skin[0]`;
+		$maxInf=getAttr($skin[0]+".mi");
+		if(getAttr($skin[0]+".mmi")==0) $maxInf=5;
+		if(size($infList)<$maxInf) $maxInf=size($infList);
+	}
+
+	$iSize=size($infList);
+	$cSize=size($pointList);
+
+	//clusters infos
+	string $infListCluster[], $clusterSet[];
+	for($i=0; $i<size($clusters); $i++) {
+		string $handle[]=`listConnections ($clusters[$i]+".matrix")`;
+		$infListCluster[$i]=$handle[0];
+
+		string $deformSet[]=`listConnections ($clusters[$i]+".msg")`;
+		$clusterSet[$i]=$deformSet[0];
+	}
+
+
+	//get membership lists
+	string $tmpMatrix=`createNode transform -n "yzWeightStoreTmp"`;
+	addAttr -ln "skin" -at "long" -m;
+	for($cl=0; $cl<size($clusters); $cl++)
+		addAttr -ln ("cluster"+$cl) -at "long" -m;
+	addAttr -ln "clusterInf" -at "long" -m;
+
+	//string $skinSet[]=`listConnections ($skin[0]+".msg")`;
+	for($cl=0; $cl<size($clusters); $cl++) {
+		string $clusterPoints[]=`sets -q $clusterSet[$cl]`;
+		$clusterPoints=`filterExpand -sm 31 -sm 28 -sm 36 -sm 47 -sm 46 $clusterPoints`;
+
+		for($c=0; $c<$cSize; $c++) {
+			setAttr ($tmpMatrix+".cluster"+$cl+"["+$c+"]") 0;
+			if(stringArrayContains($pointList[$c], $clusterPoints))
+				setAttr ($tmpMatrix+".cluster"+$cl+"["+$c+"]") 1;
+		}
+	}
+
+
+	//pcl node
+	$name=`match "[^|]*$" $node`;
+	string $pcl[]=`particle -n ($name+"Weight#")`;
+	$pcl=stringArrayCatenate({$pcl[0]},`listRelatives -pa -s $pcl[0]`);
+	$pcl[1]=rename($pcl[1],$pcl[0]+"Shape");
+
+	//copy mesh
+	string $copy;
+	int $doDye=0;
+
+	if($doStoreGeo) {
+		string $dupe[]=`duplicate $node`;
+		string $shape=getShape($dupe[0]);
+		if(nodeType($shape)=="mesh") $doDye=1;
+
+		if(!`pluginInfo -q -l decomposeMatrix`)	loadPlugin decomposeMatrix;
+		$dmx=`createNode decomposeMatrix`;
+		$copy=`createNode transform -p $pcl[0] -n ($name+"Copy#")`;
+
+		connectAttr ($node+".wm") ($dmx+".imat");
+		connectAttr ($dmx+".ot") ($copy+".t");
+		connectAttr ($dmx+".or") ($copy+".r");
+		connectAttr ($dmx+".os") ($copy+".s");
+		connectAttr ($dmx+".osh") ($copy+".sh");
+		refresh;
+		delete $dmx;
+
+		parent -r -s $shape $copy;
+		delete $dupe;
+
+		setAttr ($copy+".overrideEnabled") 1;
+		setAttr ($copy+".overrideDisplayType") 2;
+		setAttr ($copy+".displayColors") 1;
+		polyOptions -colorMaterialChannel "ambient+diffuse" $copy;
+		setAttr ($copy+".materialBlend") 0;
+
+		source "assignSG";
+		assignSG("lambert1", $copy);
+	}
+
+
+	//attributes
+	addAttr -ln "skinGeometry" -dt "string" $pcl[0];
+	setAttr -type "string" ($pcl[0]+".skinGeometry") $node;
+
+	if($doSkin) {
+		addAttr -ln "skinWeightList" -dt "string" -m -im 0 $pcl[0];
+		for($i=0; $i<$iSize; $i++)
+			setAttr -type "string" ($pcl[0]+".skinWeightList["+$i+"]") $infList[$i];
+
+		addAttr -ln "skinMaxInf" -at "long" -dv $maxInf $pcl[0];
+	}
+
+	if($doClusters) {
+		addAttr -ln "clusterList" -dt "string" -m -im 0 $pcl[0];
+		for($i=0; $i<size($clusters); $i++)
+			setAttr -type "string" ($pcl[0]+".clusterList["+$i+"]") $infListCluster[$i];
+		addAttr -ln "clusterMaxInf" -at "long" $pcl[0];
+		setAttr ($pcl[0]+".clusterMaxInf") (size($clusters));
+		addAttr -ln "clusterSkinMaxInf" -at "long" $pcl[0];
+	}
+
+	//attr tables
+	if($doSkin) {
+		for($i=0; $i<$maxInf; $i++) {
+			addAttr -k 1 -ln ("i"+$i+"W") -dt doubleArray $pcl[1];
+			addAttr -k 1 -ln ("i"+$i+"W0") -dt doubleArray $pcl[1];
+			addAttr -k 1 -ln ("w"+$i+"W") -dt doubleArray $pcl[1];
+			addAttr -k 1 -ln ("w"+$i+"W0") -dt doubleArray $pcl[1];
+		}
+	}
+	if($doClusters) {
+		for($i=0; $i<size($clusters); $i++) {
+			addAttr -k 1 -ln ("c"+$i+"W") -dt doubleArray $pcl[1];
+			addAttr -k 1 -ln ("c"+$i+"W0") -dt doubleArray $pcl[1];
+		}
+	}
+
+	//associate random colors to influences
+	vector $wColor[];
+	$colorSize=$iSize;
+	if(!$doSkin) $colorSize=size($clusters);
+
+	for($i=0; $i<$colorSize; $i++)
+		$wColor[$i]=<<rand(1),rand(1),rand(1)>>;
+
+	//display
+	addAttr -ln "rgbPP" -dt vectorArray $pcl[1];
+	addAttr -ln "rgbPP0" -dt vectorArray $pcl[1];
+	addAttr -is true -ln "pointSize" -at long -min 1 -max 60 -dv 4 $pcl[1];
+	addAttr -is true -ln "pointSize0" -at long -min 1 -max 60 -dv 4 $pcl[1];
+
+	string $cmdColor=("setAttr "+$copy+".vclr[0:"+(size($pointList)-1)+"].vrgb ");
+	string $cmdAlpha=("setAttr "+$copy+".vclr[0:"+(size($pointList)-1)+"].vxal ");
+
+	int $iList[]; for($i=0; $i<$iSize; $i++) $iList[$i]=$i;
+
+
+	//emit pcl from weights
+	for($c=0; $c<$cSize; $c++) {
+		int $amount=0; float $processing=0;
+		progressWindow -title ("exporting "+$pcl[0]) -progress $amount -status ("cv: 1/"+$cSize);
+
+		//get weight location
+		float $pos[]=`xform -q -ws -t $pointList[$c]`;
+		vector $color=<<0,0,0>>;
+
+		//emit cmd
+		$cmd=("emit -o "+$pcl[0]+" -pos "+$pos[0]+" "+$pos[1]+" "+$pos[2]+" ");
+
+
+		//skin part
+		if($doSkin) {
+			//get weight
+			float $wList[]=`skinPercent -q -v $skin[0] $pointList[$c]`;
+			int $iListTmp[]=$iList;
+
+			if($iSize>$maxInf) {
+				int $sort[]=getSortIndex($wList, $maxInf);
+				$wList=sortFloat($wList, $sort);
+				$iListTmp=sortInt($iList, $sort);
+			}
+
+			for($w=0; $w<size($wList); $w++) {
+				//$wList[$w]=roundoff($wList[$w], 4); //4 decimals only, prune law
+				$cmd+=("-at i"+$w+"W -fv "+$iListTmp[$w]+" ");
+				$cmd+=("-at w"+$w+"W -fv "+$wList[$w]+" ");
+				$color+=$wColor[$iListTmp[$w]]*$wList[$w];
+			}
+		}
+
+		//clusters part
+		if($doClusters) {
+			for($cl=0; $cl<size($clusters); $cl++) {
+				float $wList[]=`percent -q -v $clusters[$cl] $pointList[$c]`;
+				if(!getAttr($tmpMatrix+".cluster"+$cl+"["+$c+"]"))
+					$wList={0};
+
+				$cmd+=("-at c"+$cl+"W -fv "+$wList[0]+" ");
+
+				if($wList[0]>0) setAttr ($tmpMatrix+".clusterInf["+$c+"]") (getAttr($tmpMatrix+".clusterInf["+$c+"]")+1);
+
+				if(!$doSkin) $color+=$wColor[$cl]*$wList[0];
+			}
+		}
+
+		//mesh color
+		if($doDye) {
+			$cmdColor+=($color.x+" "+$color.y+" "+$color.z+" ");
+			$cmdAlpha+="1 ";
+		}
+
+		$cmd+=("-at rgbPP -vv "+$color.x+" "+$color.y+" "+$color.z+";");
+		eval $cmd;
+
+		$processing+=((float)$c/$cSize)*100;
+		$amount=(int)$processing;
+		progressWindow -e -progress $amount -status ("cv: "+($c+1)+"/"+$cSize);
+	}
+
+	//color mesh
+	if($doDye) {
+		eval $cmdColor;
+		eval $cmdAlpha;
+		setAttr ($copy+".displayImmediate") 1;
+		setAttr ($copy+".displayImmediate") 0;
+	}
+
+	//cluster maxInf lookup
+	if($doClusters) {
+		int $maxInf=0;
+		for($c=0; $c<$cSize; $c++) {
+			$clusterInf=getAttr($tmpMatrix+".clusterInf["+$c+"]");
+			if($clusterInf>$maxInf) $maxInf=$clusterInf;
+		}
+		setAttr ($pcl[0]+".clusterSkinMaxInf") $maxInf;
+	}
+	delete $tmpMatrix;
+
+	//cache
+	particle -e -cache 0 $pcl[1];
+	saveInitialState $pcl[0];
+
+
+	//exit
+	progressWindow -endProgress;
+	return $pcl;
+}
+
+//UI ------------------------------------------------------------------------------------------------------
+
+global proc yzwsStoreCB() {
+	string $sel[]=`ls -sl -et transform`;
+	string $weights[];
+
+	int $doStoreGeo=`checkBox -q -v yzwsStoreGeo`;
+
+	for($s0 in $sel) {
+		//got milk?
+		string $history[]=`listHistory $s0`;
+		string $skin[]=`ls -et skinCluster $history`;
+		string $clusters[]=`ls -et cluster $history`;
+
+		if(size($skin)<1 && size($clusters)<1) continue;
+
+		string $pcl[]=yzWeightStore($s0, $doStoreGeo);
+		$weights[size($weights)]=$pcl[0];
+	}
+	select $weights;
+}
+
+global proc yzwsRestoreCB(int $mode) {
+	string $sel[]=`ls -sl -fl`;
+	string $obj[]=`ls -et transform $sel`;
+	string $pts[]=stringArrayRemove($obj, $sel);
+
+
+	int $src=$mode;
+	int $switchSrc=`checkBox -q -v yzwsSource`;
+	if($switchSrc) $src=1-$src;
+
+	string $wList="skinWeightList";
+	if($src==1) $wList="clusterList";
+
+
+	string $weights[], $geo[];
+	int $ids[];
+
+	for($s0 in $obj) {
+		//find particles
+		if(attributeExists($wList,$s0)) {
+			$weights[size($weights)]=$s0;
+			continue;
+		}
+
+		//find geometries
+		string $shapes[]=`listRelatives -pa -s $s0`;
+		$isGeo=0;
+		if(size($shapes)) {
+			$type=nodeType($shapes[0]);
+			if($type=="mesh" || $type=="nurbsSurface" || $type=="nurbsCurve") {
+				$geo[size($geo)]=$s0;
+				$isGeo=1;
+			}
+			if($isGeo) continue;
+		}
+	}
+
+	//find points
+	for($p=0; $p<size($pts); $p++) {
+		string $from=`match "^[^\.]*" $pts[$p]`;
+		$geo[size($geo)]=$from;
+
+		string $id=substituteAll("]", $pts[$p], "" );
+		$id=match("[0-9]+$", $id);
+		$ids[size($ids)]=(int)$id;
+	}
+
+	$geo=stringArrayRemoveDuplicates($geo);
+	if(size($geo)>1 && size($ids)) error "points from different geomtries selected";
+
+	print "-weights\n"; print $weights;
+	print "-geo:\n"; print $geo;
+	print "-ids:\n"; print $ids;
+
+
+	if(size($weights)==0) {
+		if($src==0) error "no skin weights selected";
+		if($src==1) error "no cluster weights selected";
+	}
+	if(size($weights)==1) {
+		if(size($geo)) for($geo0 in $geo)
+			if($mode==0) yzWeightRestore($weights[0], $geo0, $ids, $src );
+			else yzWeightRestoreClusters($weights[0], $geo0, $ids, $src );
+		else
+			if($mode==0) yzWeightRestore($weights[0], "", {}, $src );
+			else yzWeightRestoreClusters($weights[0], "", {}, $src );
+	}
+	if(size($weights)>1) {
+		if(size($geo)==0) for($w0 in $weights)
+			if($mode==0) yzWeightRestore($w0, "", {}, $src );
+			else yzWeightRestoreClusters($w0, "", {}, $src );
+		if(size($weights)==size($geo)) for($w=0; $w<size($weights); $w++)
+			if($mode==0) yzWeightRestore($weights[$w], $geo[$w], {}, $src);
+			else yzWeightRestoreClusters($weights[$w], $geo[$w], {}, $src);
+		if(size($weights)!=size($geo) && size($geo)!=0) error "bad selection";
+	}
+}
+
+global proc yzwsLoadParticleCB() {
+
+	string $sel[]=`ls -sl`;
+	string $shapes[]=`listRelatives -pa -s $sel[0]`;
+
+	//divers check pour bien loader :)
+	if(size($shapes)==0) error "node is not a particle Weight";
+	if(nodeType($shapes[0])!="particle") error "node is not a particle Weight";
+
+	string $list;
+	string $attrList[]={"clusterList", "skinWeightList"};
+
+	for($attr0 in $attrList) {
+		if( attributeExists ($attr0, $sel[0]) ) $list=$attr0;
+	}
+	if( size($list)==0 ) error "node is not a particle Weight";
+
+
+	textField -e -tx $sel[0] yzwsPcl;
+
+	//load des names
+	string $infs[];
+	$infSize=`getAttr -s ($sel[0]+"."+$list)`;
+
+	textScrollList -e -ra yzwsInfs;
+	for($i=0; $i<$infSize; $i++) {
+		$inf=getAttr($sel[0]+"."+$list+"["+$i+"]");
+		if(!objExists($inf)) $inf=("//"+$inf);
+		textScrollList -e -a $inf yzwsInfs;
+	}
+}
+
+global proc string yzwsGetList() {
+	string $pcl=`textField -q -text yzwsPcl`;
+	string $names[]=`textScrollList -q -ai yzwsInfs`;
+	$names[0]=substituteAll("//",$names[0],"");
+	$names[0]=substituteAll(" ",$names[0],"");
+
+	if(attributeExists("skinWeightList", $pcl)) {
+		string $inf=getAttr($pcl+".skinWeightList[0]");
+		if($inf==$names[0]) return "skinWeightList";
+	}
+	if(attributeExists("clusterList", $pcl)) {
+		string $inf=getAttr($pcl+".clusterList[0]");
+		if($inf==$names[0]) return "clusterList";
+	}
+	return "";
+}
+
+global proc yzswSelectInfCB() {
+	string $name[]=`textScrollList -q -si yzwsInfs`;
+	$name[0]=substituteAll("//",$name[0],"");
+	$name[0]=substituteAll(" ",$name[0],"");
+	textField -e -tx $name[0] yzwsRen;
+}
+
+global proc yzwsRenameInfCB(int $mode) {
+	string $pcl=`textField -q -text yzwsPcl`;
+	string $weightList=yzwsGetList();
+
+	string $str, $obj;
+	if($mode==0) {
+		string $pouet[]=`ls -sl`;
+		$str=$pouet[0];
+		$obj=$str;
+	} else {
+		$str=`textField -q -tx yzwsRen`;
+		$str=substituteAll("//",$str,"");
+		$str=substituteAll(" ",$str,"");
+		$obj=$str;
+		if(!objExists($obj)) $str=("//"+$str);
+	}
+
+	//update UI
+	string $sel[]=`textScrollList -q -si yzwsInfs`;
+	int $index[]=`textScrollList -q -sii yzwsInfs`;
+	textScrollList -e -rii $index[0] yzwsInfs;
+	textScrollList -e -ap $index[0] $str yzwsInfs;
+
+	$sel[0]=$str;
+	textScrollList -e -si $sel yzwsInfs;
+
+
+	//update pcl
+	setAttr -type "string" ($pcl+"."+$weightList+"["+($index[0]-1)+"]") $obj;
+}
+
+global proc yzwsRenameNsCB() {
+	string $ns=`textField -q -tx yzwsRenNs`;
+	string $nodes[]=`textScrollList -q -si yzwsInfs`;
+	int $index[]=`textScrollList -q -sii yzwsInfs`;
+	string $pcl=`textField -q -text yzwsPcl`;
+	string $weightList=yzwsGetList();
+
+	for($i=0; $i<size($nodes); $i++) {
+		string $str=$nodes[$i];
+		$str=substituteAll("//",$str,"");
+		$str=substituteAll(" ",$str,"");
+		$str=match("[^\:]*$", $str);
+
+		if($ns!="") $str=($ns+":"+$str);
+		string $obj=$str;
+		if(!objExists($obj)) $str=("//"+$str);
+
+		textScrollList -e -rii $index[$i] yzwsInfs;
+		textScrollList -e -ap $index[$i] $str yzwsInfs;
+		$nodes[$i]=$str;
+
+		//update pcl
+		setAttr -type "string" ($pcl+"."+$weightList+"["+($index[$i]-1)+"]") $obj;
+	}
+
+	textScrollList -e -si $nodes yzwsInfs;
+}
+
+
+
+global proc yzWeightSaveUI() {
+
+	if (`window -exists yzWeightUI`)
+		deleteUI yzWeightUI;
+
+	$wUI=208;
+	$hUI=399; //300+10(window)+27(tabs)
+
+	window
+		-t "yzWeightSave2 - beta"
+		-mb true
+		-s 1
+		-rtf false
+		yzWeightUI;
+
+	string $mainFrame=`columnLayout -adj true`;
+
+	text -fn "boldLabelFont" -bgc 1 .6 0 -al "left" " weights:";
+
+
+
+	rowColumnLayout -numberOfColumns 2 -cw 1 100 -cw 2 100;
+	button -label "store" -c "yzwsStoreCB; yzwsLoadParticleCB;";
+	checkBox -label "store geometry" -align "left" yzwsStoreGeo;
+
+	button -label "restore skin" -c "yzwsRestoreCB 0";
+	button -label "restore clusters" -c "yzwsRestoreCB 1";
+	radioButtonGrp -en 0 -numberOfRadioButtons 2 -label "" -labelArray2 "id" "space" -cw3 40 40 50 -adj 1 -cat 1 "right" 0 -sl 1 yzwsMode;
+	checkBox -label "switch source" -align "left" yzwsSource;
+	setParent ..;
+
+	text -fn "boldLabelFont" -bgc 1 .6 0 -al "left" " backup:";
+
+	rowColumnLayout -numberOfColumns 2 -cw 1 100 -cw 2 100;
+	button -label "load particles" -c "yzwsLoadParticleCB;";
+	textField -ed 0 -text "" yzwsPcl;
+	setParent ..;
+
+
+	text -fn "boldLabelFont" -bgc 1 .6 0 -al "left" " influences:";
+
+	rowColumnLayout -numberOfColumns 2 -cw 1 100 -cw 2 100;
+	button -label "rename influence" -c "yzwsRenameInfCB(1);";
+	textField -text "" -ec "yzwsRenameInfCB(1);" yzwsRen;
+	button -label "namespace" -c "yzwsRenameNsCB;";
+	textField -text "" -ec "yzwsRenameNsCB;" yzwsRenNs;
+	setParent ..;
+	button -label "rename from selected" -c "yzwsRenameInfCB(0);";
+
+
+	textScrollList -nr 15 -allowMultiSelection true -sc "yzswSelectInfCB;" yzwsInfs;
+
+
+	//affichage
+	showWindow yzWeightUI;
+	window -e -w $wUI -h $hUI yzWeightUI;
+}
+
+yzWeightSaveUI;
